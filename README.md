@@ -1,4 +1,5 @@
 # Data_mining_project
+**Utilizzare solo il markdown per evitare di lavoro dopo**
 Utilizzeri questo read me come in generale una to do list, quindi in ordine : 
 
 1) trovare Dataset

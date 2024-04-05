@@ -1,0 +1,45 @@
+---
+title: "Progetto "
+author: "Simone Gervasoni Angelo Cardinale Riccardo Bonamoni "
+date: "2024-04-05"
+output:output: 
+  html_document:
+    self_contained : TRUE
+    toc : TRUE
+    toc_depth: 2 
+    number_sections: yes
+    toc_float: 
+      collapsed: no
+      smooth_scroll: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(comment = NA)
+
+```
+
+```{r warning=FALSE, message= FALSE }
+library(tidyverse)
+library(mclust)
+library(Rmixmod)
+library(GGally)
+library(caret)
+```
+# 1) Introduzione
+
+
+
+
+
+
+
+# 2) prova
+
+
+
+
+
+
+

@@ -20,26 +20,94 @@ knitr::opts_chunk$set(comment = NA)
 
 ```
 
-```{r warning=FALSE, message= FALSE }
+```{r librerie warning=FALSE, message= FALSE }
 library(tidyverse)
 library(mclust)
 library(Rmixmod)
 library(GGally)
 library(caret)
+library("tree")
 ```
-# 1) Introduzione
+# 1) Esploratoria
+
+
+
+```{r import e inizio }
+path <- "C://Users//Simone//OneDrive//scuola//data mining//Data_mining_project//glass.csv"
+glass <- tibble(read.table(path , sep = "," , header = T))
+glass$Type <- factor(glass$Type)
+```
 
 
 
 
 
+```{r ggpparis}
+glass%>%
+  select(-Type) %>%
+  ggpairs(mapping = aes(color = glass$Type))  
+```
+ferro e bario prob da escludere 
 
 
-# 2) prova
+```{r barplot}
+glass %>%
+  ggplot(aes(x= Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
+  geom_bar()
+ 
+```
 
 
 
-fasldfaòlds
 
+
+```{r shapiro test}
+pvalue_shapiro <- matrix(0, nrow = (dim(glass)[2]-1), ncol = 6)
+rownames(pvalue_shapiro) = colnames(glass)[-10]
+colnames(pvalue_shapiro) = levels(glass$Type)
+
+
+# Test Shapiro e costruzione di una matrice riassuntiva con i p-value condizionati alla classe
+for (i in colnames(glass)[-10]){
+  for (j in levels(glass$Type)){
+    pvalue_shapiro[i,j]<-
+      shapiro.test( jitter(glass %>% filter(Type == j)%>%pull(i)) )$p.value
+  }
+}
+
+round(pvalue_shapiro, 5)
+
+?shapiro.test
+```
+
+
+# 2) preprocessing
+
+```{r division dataset}
+dataset_division <- function(D1, perc = 0.8) {
+  id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
+  train <- D1[id,]
+  test <- D1[-id,]
+  out <- list(train, test)
+}
+
+glass_train <- dataset_division(glass)[1]
+glass_test <- dataset_division(glass)[2]
+```
+
+
+
+
+# metodi di classificazione
+
+
+
+
+## Alberi
+```{r alberi}
+ 
+tree.glass <- tree(Type ~. , as.data.frame(glass_train))
+summary(tree.glass)
+```
 
 

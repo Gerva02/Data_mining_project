@@ -33,7 +33,7 @@ library("tree")
 
 
 ```{r import e inizio }
-path <- "C://Users//Simone//OneDrive//scuola//data mining//Data_mining_project//glass.csv"
+path <- "glass.csv"
 glass <- tibble(read.table(path , sep = "," , header = T))
 glass$Type <- factor(glass$Type)
 ```
@@ -47,7 +47,7 @@ glass%>%
   select(-Type) %>%
   ggpairs(mapping = aes(color = glass$Type))  
 ```
-ferro e bario prob da escludere 
+#ferro e bario prob da escludere 
 
 
 ```{r barplot}

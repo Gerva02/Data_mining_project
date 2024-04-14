@@ -51,10 +51,25 @@ glass%>%
 
 
 ```{r barplot}
+#questo bar plot è riguardo freq relative
 glass %>%
   ggplot(aes(x= Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
-  geom_bar()
+  geom_bar() 
  
+#questo bar plot è riguardo freq assolute
+glass %>%
+  ggplot(aes(x= Type, y = after_stat(count), fill = Type)) + 
+  geom_bar()
+```
+
+```{r}
+#qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
+glass %>%
+  gather(key = Measure, value = value, -Type )  %>%
+  ggplot(aes(x = Type, y= value, color = Measure)) +
+  geom_boxplot()+
+  facet_wrap(~ Measure)
+
 ```
 
 
@@ -62,16 +77,18 @@ glass %>%
 
 
 ```{r shapiro test}
+#qua si crea tabella pvalues
 pvalue_shapiro <- matrix(0, nrow = (dim(glass)[2]-1), ncol = 6)
 rownames(pvalue_shapiro) = colnames(glass)[-10]
 colnames(pvalue_shapiro) = levels(glass$Type)
-
+-----
 
 # Test Shapiro e costruzione di una matrice riassuntiva con i p-value condizionati alla classe
 for (i in colnames(glass)[-10]){
   for (j in levels(glass$Type)){
     pvalue_shapiro[i,j]<-
-      shapiro.test( jitter(glass %>% filter(Type == j)%>%pull(i)) )$p.value
+      shapiro.test( jitter(glass %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
+    # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
   }
 }
 
@@ -84,15 +101,21 @@ round(pvalue_shapiro, 5)
 # 2) preprocessing
 
 ```{r division dataset}
+#questa è una funzione che divide tra test e train (magari ci serve nel CV)
 dataset_division <- function(D1, perc = 0.8) {
   id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
   train <- D1[id,]
   test <- D1[-id,]
-  out <- list(train, test)
+  out <- list(train = train, test = test)
 }
 
-glass_train <- dataset_division(glass)[1]
-glass_test <- dataset_division(glass)[2]
+#Qua abbiamo diviso magari dobbiamo normalizzare 
+glass.train <- dataset_division(glass)$train
+glass.test <- dataset_division(glass)$test 
+
+#non trovo il comando per farlo per tutto il data set senza usare apply (dovremmo fare un apply)
+# ma inoltre per ogni colonna (se normalizziamo) dobbiamo salvare min e max (e dopo veranno applicati sul test)
+
 ```
 
 
@@ -105,9 +128,12 @@ glass_test <- dataset_division(glass)[2]
 
 ## Alberi
 ```{r alberi}
- 
-tree.glass <- tree(Type ~. , as.data.frame(glass_train))
+#qua ho fatto un albero e sembra buono (migliorerà soltanto se normalizziamo)
+tree.glass <- tree(Type ~. , glass.train)
 summary(tree.glass)
+plot(tree.glass)
+tree.pred <- predict(tree.glass , glass.test[-10] , type = "class")
+mean(tree.pred == glass.test$Type) 
 ```
 
 

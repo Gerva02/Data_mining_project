@@ -52,7 +52,7 @@ ggcorrplot(cor(glass%>%
  select(-Type)), lab = T , type = "lower" )
 ?ggcorrplot
 ```
-#ferro e bario prob da escludere 
+CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà vista 
 
 
 ```{r barplot}
@@ -66,6 +66,9 @@ glass %>%
   ggplot(aes(x= Type, y = after_stat(count), fill = Type)) + 
   geom_bar()
 ```
+probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
+
+
 
 ```{r}
 #qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
@@ -76,8 +79,17 @@ glass %>%
   facet_wrap(~ Measure,scales = "free")
 
 ```
+Questo grafico ci riesce a far capire 3 cose : 
+1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
+2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
+3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
 
+vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) 
+```{r}
 
+glass %>%
+  filter(Type == "6")
+```
 
 
 
@@ -96,6 +108,8 @@ for (i in colnames(glass)[-10]){
     # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
   }
 }
+
+pvalue_shapiro["Ca", "6" ] <- pvalue_shapiro["K", "6" ] <- pvalue_shapiro["Fe", "6" ] <- NA
 
 round(pvalue_shapiro, 5)
 

@@ -2,7 +2,7 @@
 title: "Progetto "
 author: "Simone Gervasoni Angelo Cardinale Riccardo Bonamoni "
 date: "2024-04-05"
-output:output: 
+output:
   html_document:
     self_contained : TRUE
     toc : TRUE
@@ -17,10 +17,9 @@ output:output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F)
 knitr::opts_chunk$set(comment = NA)
-
 ```
 
-```{r librerie warning=FALSE, message= FALSE }
+```{r librerie, warning=FALSE, message= FALSE }
 library(tidyverse)
 library(mclust)
 library(Rmixmod)
@@ -29,7 +28,7 @@ library(caret)
 library("tree")
 library(ggcorrplot)
 ```
-# 1) Esploratoria
+# Esploratoria
 
 
 
@@ -47,10 +46,8 @@ glass$Type <- factor(glass$Type)
 # glass%>%
 #   select(-Type) %>%
 #   ggpairs(mapping = aes(color = glass$Type))  
-?gg
 ggcorrplot(cor(glass%>%
  select(-Type)), lab = T , type = "lower" )
-?ggcorrplot
 ```
 CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà vista 
 
@@ -112,12 +109,10 @@ for (i in colnames(glass)[-10]){
 pvalue_shapiro["Ca", "6" ] <- pvalue_shapiro["K", "6" ] <- pvalue_shapiro["Fe", "6" ] <- NA
 
 round(pvalue_shapiro, 5)
-
-?shapiro.test
 ```
 
 
-# 2) preprocessing
+## preprocessing
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
@@ -140,7 +135,7 @@ glass.test <- dataset_division(glass)$test
 
 
 
-# metodi di classificazione
+## Metodi di classificazione
 
 
 
@@ -162,12 +157,11 @@ par(mfrow = c(1, 2))
 plot(cv.tree.glass$size , cv.tree.glass$dev, type = "b")
 points(cv.tree.glass$size[which.min(cv.tree.glass$dev)], cv.tree.glass$dev[which.min(cv.tree.glass$dev)], col = "red", pch = 19)
 plot(cv.tree.glass$k, cv.tree.glass$dev, type = "b")
-?cv.tree
 ```
 vediamo che con 11 leaf node è quello che predice meglio
 
 ```{r testing cross validation tree}
-best.tree <-  prune.misclass(tree.glass , best = 11)
+best.tree <-  prune.misclass(tree.glass , best = cv.tree.glass$size[which.min(cv.tree.glass$dev)])
 tree.pred <- predict(best.tree , glass.test[-10] , type = "class")
 confusionMatrix(tree.pred,glass.test$Type )
 mean(tree.pred == glass.test$Type) 

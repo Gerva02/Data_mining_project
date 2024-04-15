@@ -136,9 +136,40 @@ glass.test <- dataset_division(glass)$test
 #qua ho fatto un albero e sembra buono (migliorerà soltanto se normalizziamo)
 tree.glass <- tree(Type ~. , glass.train)
 summary(tree.glass)
-plot(tree.glass)
+plot(tree.glass); text(tree.glass, , pretty = 0) # albero completo # queste due linee vanno eseguite insieme
 tree.pred <- predict(tree.glass , glass.test[-10] , type = "class")
 mean(tree.pred == glass.test$Type) 
 ```
+vediamo split innutili 
+```{r cross validation tree}
+set.seed (7)
+cv.tree.glass <- cv.tree(tree.glass , FUN = prune.misclass)
+par(mfrow = c(1, 2))
+plot(cv.tree.glass$size , cv.tree.glass$dev, type = "b")
+points(cv.tree.glass$size[which.min(cv.tree.glass$dev)], cv.tree.glass$dev[which.min(cv.tree.glass$dev)], col = "red", pch = 19)
+plot(cv.tree.glass$k, cv.tree.glass$dev, type = "b")
+?cv.tree
+```
+vediamo che con 11 leaf node è quello che predice meglio
+
+```{r testing cross validation tree}
+best.tree <-  prune.misclass(tree.glass , best = 11)
+tree.pred <- predict(best.tree , glass.test[-10] , type = "class")
+confusionMatrix(tree.pred,glass.test$Type )
+mean(tree.pred == glass.test$Type) 
+```
+5% improvement
+
+```{r}
+plot(best.tree); text(best.tree,,pretty=0)
+```
+# KNN 
+
+```{r normalizing}
+
+```
+
+
+
 
 

@@ -107,7 +107,7 @@ round(pvalue_shapiro, 5)
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
-dataset_division <- function(D1, perc = 0.8) {
+dataset_division <- function(D1, perc = 0.7) {
   id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
   train <- D1[id,]
   test <- D1[-id,]
@@ -158,7 +158,7 @@ tree.pred <- predict(best.tree , glass.test[-10] , type = "class")
 confusionMatrix(tree.pred,glass.test$Type )
 mean(tree.pred == glass.test$Type) 
 ```
-5% improvement
+5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test
 
 ```{r}
 plot(best.tree); text(best.tree,,pretty=0)
@@ -166,10 +166,30 @@ plot(best.tree); text(best.tree,,pretty=0)
 # KNN 
 
 ```{r normalizing}
+normalize <- function(x, v = NA) {
+  if (is.na(v)){
+    return((x - min(x)) / (max(x) - min(x)))
+  }
+  else{
+    return((x - v[1]) / (v[2] -v[1]))
+  }
+      
+}
 
+
+norm_glass <- glass.train
+min_max_matrix <- matrix(rep(NA, 18), nrow= 2 , ncol = (ncol(glass)-1) )
+for (i in 1: (ncol(glass)-1)){
+  min_max_matrix[1 , i] <- min(norm_glass %>% pull(i))
+  min_max_matrix[2 , i] <- max(norm_glass %>% pull(i))
+  norm_glass[,i] <- normalize(norm_glass %>% pull(i))
+}
 ```
 
 
+```{r}
+
+```
 
 
 

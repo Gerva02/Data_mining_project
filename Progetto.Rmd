@@ -67,8 +67,8 @@ glass %>%
 glass %>%
   gather(key = Measure, value = value, -Type )  %>%
   ggplot(aes(x = Type, y= value, color = Measure)) +
-  geom_boxplot()+
-  facet_wrap(~ Measure)
+  geom_violin()+ # possiamo fare il box plot ma è l'unica volta che questo tipo di grafico è utile
+  facet_wrap(~ Measure,scales = "free")
 
 ```
 

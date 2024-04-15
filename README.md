@@ -10,18 +10,19 @@ Utilizzeri questo read me come in generale una to do list, quindi in ordine :
 4) Analisi (io direi di non fare text mining)
 
 To do list :
+- [ ] settare seed ovunque c'è roba random
 - [x] Scegliere data set
 - [x] Fare grafici analisi esplorativa
-- [ ] standardizzare
-    - [ ] bisogna salvare min e max di ogni colonna (probabilmente)
+- [x] Normalizzazione
+    - [x] bisogna salvare min e max di ogni colonna (probabilmente)
     - [ ] rifare alcuni grafici (?)
-- [ ] trattare collinearità
-    - [ ] distanza malanhobis (?) (a quel punto toccherà salvare correlazioni lineari) 
-    - [ ] magari buttare via variaibli troppo correlate ( il prof ha detto di vedere quale ha più impatto su y) 
-- [ ] Modificare tavola P-value
-    - [ ] problema dei valori tutti uguali 
+    - [x] problema dei valori tutti uguali 
 - [ ] Applicare KNN
-- [ ] Applicare alberi decisionali (Possiamo anche evitare di normalizzare questi dati)
+    - [ ] trattare collinearità
+        - [ ] distanza malanhobis (?) (a quel punto toccherà salvare correlazioni lineari) 
+        - [ ] magari buttare via variaibli troppo correlate ( il prof ha detto di vedere quale ha più impatto su y) 
+- [x] Modificare tavola P-value
+- [x] Applicare alberi decisionali (Possiamo anche evitare di normalizzare questi dati)
 - [ ] (?) regressione logistica multiclasse 
-
+- [ ] come compariamo i diversi modelli ottenuti tutti in cv (?) 
       

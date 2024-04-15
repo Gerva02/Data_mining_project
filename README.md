@@ -24,6 +24,7 @@ To do list :
 - [x] Modificare tavola P-value
 - [x] Applicare alberi decisionali (Possiamo anche evitare di normalizzare questi dati)
         - [ ] aggiungere log loss (?)
+ - [ ] andare a vedere fonte vera se ha dati diversi e se dice di più del dataset
 - [ ] (?) regressione logistica multiclasse 
 - [ ] come compariamo i diversi modelli ottenuti tutti in cv (?)
 

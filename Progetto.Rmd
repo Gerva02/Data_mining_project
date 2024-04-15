@@ -27,6 +27,7 @@ library(Rmixmod)
 library(GGally)
 library(caret)
 library("tree")
+library(ggcorrplot)
 ```
 # 1) Esploratoria
 
@@ -42,10 +43,14 @@ glass$Type <- factor(glass$Type)
 
 
 
-```{r ggpparis}
-glass%>%
-  select(-Type) %>%
-  ggpairs(mapping = aes(color = glass$Type))  
+```{r ggcorplots}
+# glass%>%
+#   select(-Type) %>%
+#   ggpairs(mapping = aes(color = glass$Type))  
+?gg
+ggcorrplot(cor(glass%>%
+ select(-Type)), lab = T , type = "lower" )
+?ggcorrplot
 ```
 #ferro e bario prob da escludere 
 
@@ -81,7 +86,7 @@ glass %>%
 pvalue_shapiro <- matrix(0, nrow = (dim(glass)[2]-1), ncol = 6)
 rownames(pvalue_shapiro) = colnames(glass)[-10]
 colnames(pvalue_shapiro) = levels(glass$Type)
------
+#-----
 
 # Test Shapiro e costruzione di una matrice riassuntiva con i p-value condizionati alla classe
 for (i in colnames(glass)[-10]){

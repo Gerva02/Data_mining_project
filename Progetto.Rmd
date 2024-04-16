@@ -73,8 +73,9 @@ probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 
 glass %>%
   gather(key = Measure, value = value, -Type )  %>%
   ggplot(aes(x = Type, y= value, color = Measure)) +
-  geom_violin()+ # possiamo fare il box plot ma è l'unica volta che questo tipo di grafico è utile
-  facet_wrap(~ Measure,scales = "free")
+  geom_violin(trim = F)+ 
+  geom_boxplot(width=0.1) + 
+  facet_wrap( ~ Measure ,scales = "free", ncol =2) 
 
 ```
 Questo grafico ci riesce a far capire 3 cose : 
@@ -84,7 +85,6 @@ Questo grafico ci riesce a far capire 3 cose :
 
 vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) 
 ```{r}
-
 glass %>%
   filter(Type == "6")
 ```
@@ -113,7 +113,7 @@ round(pvalue_shapiro, 5)
 ```
 
 
-## preprocessing
+# Preprocessing
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
@@ -125,6 +125,7 @@ dataset_division <- function(D1, perc = 0.7) {
 }
 
 #Qua abbiamo diviso magari dobbiamo normalizzare 
+set.seed(123)
 glass.train <- dataset_division(glass)$train
 glass.test <- dataset_division(glass)$test 
 
@@ -136,14 +137,16 @@ glass.test <- dataset_division(glass)$test
 
 
 
-## Metodi di classificazione
+# Metodi di classificazione
 
 
 
 
 ## Alberi
 ```{r alberi}
-#qua ho fatto un albero e sembra buono (migliorerà soltanto se normalizziamo)
+#qua ho fatto un albero e sembra buono (migliorerà soltanto se normalizziam
+set.seed(123)
+
 tree.glass <- tree(Type ~. , glass.train)
 summary(tree.glass)
 plot(tree.glass); text(tree.glass, , pretty = 0) # albero completo # queste due linee vanno eseguite insieme
@@ -172,7 +175,7 @@ mean(tree.pred == glass.test$Type)
 ```{r}
 plot(best.tree); text(best.tree,,pretty=0)
 ```
-# KNN 
+## KNN 
 
 ```{r normalizing}
 normalize <- function(x, v = NA) {
@@ -185,7 +188,7 @@ normalize <- function(x, v = NA) {
       
 }
 
-
+set.seed(123)
 norm_glass <- glass.train
 min_max_matrix <- matrix(rep(NA, 18), nrow= 2 , ncol = (ncol(glass)-1) )
 for (i in 1: (ncol(glass)-1)){

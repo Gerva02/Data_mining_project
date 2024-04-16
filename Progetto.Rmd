@@ -218,7 +218,28 @@ for (i in 1:Kmax){
 r<-rep("black",Kmax)
 r[which.max(knn.pred.k)]<-"red"
 plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
-abline(h=which.max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
+abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
 ```
 
 
+```{r}
+#non ho runnato, devo andare a cena (incrociamo le dita)
+func<-function(v){
+  return((v-v[1])/(v[2]-v[1]))
+}
+
+norm_aux<-function(data,matrix){
+  data_2<-rbind(matrix,data)
+  data_norm<-apply(data_2,MARGIN = 2,func)
+  return(data_norm[3:,])
+}
+
+normalize_2<-function(train,test){
+  matrix_min_max<-rbind(apply(train,MARGIN = 2,min),apply(train,MARGIN = 2,max))
+  train_norm<-norm_aux(train,matrix_min_max)
+  test_norm<-norm_aux(test,matrix_max_min)
+  return(list(train_norm=train_norm,test_norm=test_norm))
+}
+
+normalize_2(glass.train,glass.test)
+```

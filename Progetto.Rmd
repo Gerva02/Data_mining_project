@@ -265,11 +265,13 @@ mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<-1:tree.size.max
 
 for (j in 1:cv){
   split<-sample(c(T,F), size=n, replace = T, prob = c(p,1-p))
-  
+  out_norm_cv<-normalize_2(glass[split,-k],glass[!split,-k])
+    train_cv<-out_norm_cv$train_norm
+    test_cv<-out_norm_cv$test_norm
   #metodo knn
   for (i in 1:knn.kmax){
     set.seed(42)
-    knn.pred <- knn(train=glass[split,-k], test=glass[!split,-k], cl=labels[split], k = i)
+    knn.pred <- knn(train=train_cv, test=test_cv, cl=labels[split], k = i) #TENIAMO PRESENTE CHE FACENDO NORMALIZE IN QUESTO MODO IL     RUSLTATO CAMBIA TOTALMENTE E PASSA DA k=1 a k=4 CHE HA SENSO??? O FORSE CAMBIO DRASTICO...NORMALIZZARE COME AVEVO FATTO PRIMA       ERA SBAGLIATO E QUESTO MIGLIORAMENTO LO ATTESTA (CON E SENZA NORMALIZZAZIONE C'E UN CAMBIAMENTO BELLO STRONG). RAZIONALE CHE        USCISSE CON k=1 CHE QUINDI PROBABILMENTE ERA UNA E UNA SOLA VARIABILE DELL'UNICO PUNTO VICINO A FARE LA DIFFERENZA
     mat[i,j+2]<-mean(knn.pred==labels[!split])
   }
   

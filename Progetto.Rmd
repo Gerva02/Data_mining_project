@@ -251,10 +251,38 @@ out$test_norm[1:10,]
 
 ```{r}
 cv<-5
+p<-1-1/cv
 n<-nrow(glass)
 k<-ncol(glass)
-for (i in 1:cv){
-  split<-sample()
+labels<-as.factor(as.matrix(glass[,k]))
+knn.kmax<-10
+tree.size.max<-15
+mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max),ncol=cv+2))
+mat[1:knn.kmax,1]<-"knn"
+mat[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
+mat[1:knn.kmax,2]<-1:knn.kmax
+mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<-1:tree.size.max
+
+for (j in 1:cv){
+  split<-sample(c(T,F), size=n, replace = T, prob = c(p,1-p))
+  
+  #metodo knn
+  for (i in 1:knn.kmax){
+    set.seed(42)
+    knn.pred <- knn(train=glass[split,-k], test=glass[!split,-k], cl=labels[split], k = i)
+    mat[i,j+2]<-mean(knn.pred==labels[!split])
+  }
+  
+  #metodo alberi
+  for (i in 1:tree.size.max){
+    set.seed(42) #TODO metodo previsione alberi con le varie size (GERVI TUTTO TUO)
+    
+    #mat[(i+knn.kmax),j+2]<-
+  }
+  
 }
+res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo
+colnames(res)<-c("metodo","hyperparameter","accuracy")
+res
 
 ```

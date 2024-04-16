@@ -196,8 +196,7 @@ for (i in 1: (ncol(glass)-1)){
 ```
 
 ```{r}
-(norm_glass_test<-apply(glass.test %>% select(-Type), MARGIN = 2, normalize))
-#gervi così non ti piace????
+norm_glass_test<-apply(glass.test %>% select(-Type), MARGIN = 2, normalize)
 norm_glass
 ```
 
@@ -216,7 +215,7 @@ for (i in 1:Kmax){
 r<-rep("black",Kmax)
 r[which.max(knn.pred.k)]<-"red"
 plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
-abline(h=max(knn.pred.k),col="purple")
+abline(h=which.max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
 ```
 
 

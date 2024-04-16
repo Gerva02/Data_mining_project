@@ -196,7 +196,7 @@ for (i in 1: (ncol(glass)-1)){
 ```
 
 ```{r}
-(norm_glass_test<-apply(glass.test[,-ncol(glass)], MARGIN = 2, normalize))
+(norm_glass_test<-apply(glass.test %>% select(-Type), MARGIN = 2, normalize))
 #gervi così non ti piace????
 norm_glass
 ```
@@ -205,8 +205,8 @@ norm_glass
 #esiste anche knn.cv !!!!!!!!!
 Kmax<-20
 knn.pred.k<-rep(0,Kmax)
-X_train<-norm_glass[,-ncol(glass)]
-labels<-as.factor(as.matrix(norm_glass[,ncol(glass)])) #non chiedere perchè...
+X_train<-norm_glass %>% select(-Type)
+labels<-norm_glass$Type #qua ho cambiato e non sembra essere cambiato nulla 
 X_test<-norm_glass_test
 for (i in 1:Kmax){
   set.seed(42)

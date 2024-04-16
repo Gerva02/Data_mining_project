@@ -223,7 +223,6 @@ abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po'
 
 
 ```{r}
-#non ho runnato, devo andare a cena (incrociamo le dita)
 func<-function(v){
   return((v-v[1])/(v[2]-v[1]))
 }
@@ -231,15 +230,16 @@ func<-function(v){
 norm_aux<-function(data,matrix){
   data_2<-rbind(matrix,data)
   data_norm<-apply(data_2,MARGIN = 2,func)
-  return(data_norm[3:,])
+  return(data_norm[3:nrow(data_norm),])
 }
 
 normalize_2<-function(train,test){
   matrix_min_max<-rbind(apply(train,MARGIN = 2,min),apply(train,MARGIN = 2,max))
   train_norm<-norm_aux(train,matrix_min_max)
-  test_norm<-norm_aux(test,matrix_max_min)
+  test_norm<-norm_aux(test,matrix_min_max)
   return(list(train_norm=train_norm,test_norm=test_norm))
 }
 
-normalize_2(glass.train,glass.test)
+normalize_2(glass.train[,-ncol(glass.train)],glass.test[,-ncol(glass.test)]) #mi viene da piangere, ha runnato tutto senza bug
+#gervi fai un check che poi possiamo usarla
 ```

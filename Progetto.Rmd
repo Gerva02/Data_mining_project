@@ -28,6 +28,7 @@ library(caret)
 library("tree")
 library(ggcorrplot)
 library(class)
+library(knnGarden)
 ```
 # Analisi esplorativa
 
@@ -248,17 +249,17 @@ mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<-1:tree.size.max
 
 #loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 for (j in 1:cv){
-  split<-sample(c(T,F), size=n.train, replace = T, prob = c(p,1-p)) #questo è sbagliato
-  out_norm_cv<-normalize_2(glass.train[split,-k.train],glass.train[!split,-k.train])
+  split<-sample(rep(c(1:5),n.train/cv), size=n.train) # facciamo così con il rep per evitare gruppi sbilanciati n.train/cv deve fare un numero intero
+  out_norm_cv<-normalize_2(glass.train[split != j  ,-k.train] ,glass.train[split ==j ,-k.train])
   train_cv<-out_norm_cv$train_norm
   test_cv<-out_norm_cv$test_norm
   #metodo knn
   for (i in 1:knn.kmax){
     set.seed(42)
-    knn.pred <- knn(train=train_cv, test=test_cv, cl=labels_train[split], k = i)
-    #	knnMCN(TrnX, OrigTrnG, TstX = NULL, K = 1, ShowObs = F) prova a vedere se questa risolve i problemi
+    knn.pred <- knn(train=train_cv, test=test_cv, cl=labels_train[split != j], k = i)
+    #knn.pred <- knnMCN(train=train_cv, test=test_cv, TstX = NULL, K = i, ShowObs = F) 
     #TENIAMO PRESENTE CHE FACENDO NORMALIZE IN QUESTO MODO IL     RUSLTATO CAMBIA TOTALMENTE E PASSA DA k=1 a k=4 CHE HA SENSO??? O FORSE CAMBIO DRASTICO...NORMALIZZARE COME AVEVO FATTO PRIMA       ERA SBAGLIATO E QUESTO MIGLIORAMENTO LO ATTESTA (CON E SENZA NORMALIZZAZIONE C'E UN CAMBIAMENTO BELLO STRONG). RAZIONALE CHE        USCISSE CON k=1 CHE QUINDI PROBABILMENTE ERA UNA E UNA SOLA VARIABILE DELL'UNICO PUNTO VICINO A FARE LA DIFFERENZA
-    mat[i,j+2]<-mean(knn.pred==labels_train[!split])
+    mat[i,j+2]<-mean(knn.pred == labels_train[split ==j])
   }
 
   #metodo alberi
@@ -287,7 +288,6 @@ train_norm<-out_norm$train_norm
 test_norm<-out_norm$test_norm
 
 knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 4)
-knn.pred <- knn(train=glass.train, test=glass.test, cl=labels_train, k = 4)
 mean(glass.test$Type == knn.pred)
 ```
 

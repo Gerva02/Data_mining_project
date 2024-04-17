@@ -28,6 +28,7 @@ library(caret)
 library("tree")
 library(ggcorrplot)
 library(class)
+library(nnet)
 #library(knnGarden)
 ```
 # Analisi esplorativa
@@ -335,8 +336,8 @@ mean(glass.test$Type == tree.best.pred)
 
 ```{r test}
 #mi sa che sta cosa me la sono inventata...
-mod<-glm(formula = Type~.,data = glass.train,family = binomial,weights = NULL)
+mod<-multinom(formula = Type~.,data = glass.train)
 pred<-predict(mod,glass.test[,-k])
 pred
-
+mean(pred==glass.test$Type) #FENOMENALE (DA RIVEDERE)
 ```

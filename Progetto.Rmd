@@ -283,7 +283,6 @@ for (j in 1:cv){
   for (i in 1:tree.size.max){
     set.seed(42)
     pruned.tree <-prune.tree(tree.glass ,method="misclass", k= pruned.tree.k[i+1] )
-    k <- pruned.tree.k[i+1]
     tree.pred <-predict(pruned.tree , test.cv.tree[-10] , type = "class")
     mat[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
@@ -311,10 +310,14 @@ mean(glass.test$Type == knn.pred)
 ```
 
 
-```{r}
-pruned.tree.k[2]
+```{r test}
+train_norm<-glass.train
+test_norm<-glass.test
 
+tree.best.glass <- tree(Type ~. , glass.train)
+pruned.best.tree <-prune.tree(tree.best.glass  ,method="misclass", k = pruned.tree.k[3] )
+tree.best.pred <-predict(pruned.best.tree  , test_norm[-10] , type = "class")
 
-
+mean(glass.test$Type == tree.best.pred) #
 ```
 

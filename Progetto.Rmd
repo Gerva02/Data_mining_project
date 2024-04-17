@@ -176,6 +176,17 @@ mean(tree.pred == glass.test$Type)
 ```{r}
 plot(best.tree); text(best.tree,,pretty=0)
 ```
+
+## Alberi 2
+
+```{r }
+train_norm<-glass.train
+test_norm<-glass.test
+
+tree.best.glass <- tree(Type ~. , glass.train)
+pruned.tree.k <-prune.tree(tree.best.glass  ,method="misclass")$k
+```
+
 ## KNN 
 
 ```{r}
@@ -234,14 +245,13 @@ out$test_norm[1:10,]
 
 
 ```{r}
-list <- NA
 cv<-5
 p<-1-1/cv
 n.train<-nrow(glass.train)
 k.train <-ncol(glass.train)
 labels_train <-glass.train$Type
 knn.kmax<-10
-tree.size.max<-15
+tree.size.max<- length(pruned.tree.k)-2
 mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max),ncol=cv+2))
 mat[1:knn.kmax,1]<-"knn"
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
@@ -269,17 +279,13 @@ for (j in 1:cv){
   train.cv.tree$Type <-labels_train[split != j]
   test.cv.tree$Type <-labels_train[split ==j]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
-  pruned.tree.k <-prune.tree(tree.glass.cv ,method="misclass")$k
-  tree.size.possible <-length(prune.tree(tree.glass.cv ,method="misclass")$k)-2
   #metodo alberi
-  for (i in 1:tree.size.possible){
-    
+  for (i in 1:tree.size.max){
     set.seed(42)
     pruned.tree <-prune.tree(tree.glass ,method="misclass", k= pruned.tree.k[i+1] )
     k <- pruned.tree.k[i+1]
     tree.pred <-predict(pruned.tree , test.cv.tree[-10] , type = "class")
-    acc <- mean(tree.pred == labels_train[split ==j])
-    #l'iper parametro da salvare è anche k 
+    mat[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
 }
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo
@@ -299,21 +305,14 @@ out_norm<- normalize_2(glass.train[,-k.train],glass.test[,-k.train])
 train_norm<-out_norm$train_norm
 test_norm<-out_norm$test_norm
 
-knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 4)
+
+knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 2)
 mean(glass.test$Type == knn.pred)
 ```
 
+
 ```{r}
-train_norm<-glass.train[,-k.train]
-test_norm<-glass.test[,-k.train]
-k_best  <- 2#una volta trovato il k migliore 
-
-tree.best.glass <- tree(Type ~. , glass.train)
-pruned.tree.k <-prune.tree(tree.glass.cv ,method="misclass",k=k_best)
-
-tree.pred <- predict(pruned.tree.k , glass.test[-10] , type = "class")
-mean(tree.pred == glass.test$Type) 
-
+pruned.tree.k[2]
 
 
 

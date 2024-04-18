@@ -32,6 +32,8 @@ To do list :
 - [ ] (?) regressione logistica multiclasse
    - [ ]  manca la parte di diagnostica
 - [ ] aggiustare i grafici l'asse delle x è troppo piccolo per ogni grafico (i vilion plot)
+- [ ] aggiungere labels e titoli a tutti i grafici
+    
 - [x] alberi decisionali
       
 

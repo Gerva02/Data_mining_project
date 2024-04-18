@@ -68,6 +68,18 @@ glass %>%
 probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
 
 
+```{r}
+glass %>% 
+  select(-Type)%>%
+  gather(key = tipo, value=valore)%>%
+  ggplot(mapping= aes(y = valore)) +
+  geom_boxplot()+
+  facet_wrap(~ tipo,scales="free")
+  
+```
+
+
+
 
 ```{r}
 #qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
@@ -256,7 +268,7 @@ mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max),ncol=cv+2))
 mat[1:knn.kmax,1]<-"knn"
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
 mat[1:knn.kmax,2]<-1:knn.kmax
-mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<-1:tree.size.max
+mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<- pruned.tree.k[2:(length(pruned.tree.k)-1)]
 
 #loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 for (j in 1:cv){
@@ -305,7 +317,7 @@ train_norm<-out_norm$train_norm
 test_norm<-out_norm$test_norm
 
 
-knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 2)
+knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 8)
 mean(glass.test$Type == knn.pred)
 ```
 

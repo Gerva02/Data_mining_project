@@ -146,6 +146,31 @@ glass.train %>%
   facet_wrap(~Measure, scales= "free")
 ```
 
+```{r}
+library(car)
+p <-glass.train %>% 
+  select( -c("Fe", "K" , "Ba", "Type"))
+p1 <- p %>% 
+  apply(MARGIN =2 , FUN = powerTransform, family = "bcnPower")  
+a3 <- as.vector(c( sos$RI[1]$lambda,sos$Na[1]$lambda , sos$Mg[1]$lambda, sos$Al[1]$lambda, sos$Si[1]$lambda,sos$Ca[1]$lambda))
+colnames(p)
+col
+transformedY <- bcPower(with(p, cbind(RI, Na, Mg, Al, Si, Ca)),
+                lambda = a3 ,gamma= 0.01)
+?bcPower
+
+transformed.glass <- tibble(cbind(as.data.frame(transformedY)), Type = labels_train)
+
+transformed.glass%>%
+  gather(key = Measure, value = valore, -Type )  %>%
+  ggplot(aes(x= valore , colour= Type)) +
+  geom_density() +
+  facet_wrap(~Measure, scales= "free")
+
+```
+
+
+neanche niente male per alcune di queste
 
 ```{r shapiro test}
 #qua si crea tabella pvalues

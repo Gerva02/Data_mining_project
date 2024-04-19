@@ -52,7 +52,8 @@ k<-ncol(glass)
 #   select(-Type) %>%
 #   ggpairs(mapping = aes(color = glass$Type))  
 ggcorrplot(cor(glass%>%
- select(-Type)), lab = T , type = "lower" )
+ select(-Type)), lab = T , type = "lower" ) +
+  labs(title = "Plot di Correlazioni Lineari")
 ```
 CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà vista 
 
@@ -61,15 +62,17 @@ CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà v
 #questo bar plot è riguardo freq relative
 glass %>%
   ggplot(aes(x= Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
-  geom_bar() 
+  geom_bar() +
+  labs(title = "Frequenza Relativa delle Classi",y= "Freq Rel")
  
 #questo bar plot è riguardo freq assolute
 glass %>%
   ggplot(aes(x= Type, y = after_stat(count), fill = Type)) + 
-  geom_bar()
+  geom_bar() +
+  labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
 ```
 probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
-
+dobbiamo scegliere quale tra le due prendere 
 
 ```{r}
 glass %>% 
@@ -77,7 +80,8 @@ glass %>%
   gather(key = tipo, value=valore)%>%
   ggplot(mapping= aes(y = valore)) +
   geom_boxplot()+
-  facet_wrap(~ tipo,scales="free")
+  facet_wrap(~ tipo,scales="free")+
+  labs(title = "Box Plot con Tutte le Variabili")
   
 ```
 
@@ -87,12 +91,15 @@ glass %>%
 ```{r}
 #qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
 glass %>%
-  gather(key = Measure, value = value, -Type )  %>%
-  ggplot(aes(x = Type, y= value, color = Measure)) +
+  gather(key = Measure, value = valore, -Type )  %>%
+  ggplot(aes(x = Type, y= valore, color = Measure)) +
   geom_violin(trim = F)+ 
   geom_boxplot(width=0.1) + 
-  facet_wrap( ~ Measure ,scales = "free", ncol =2) 
+  facet_wrap( ~ Measure ,scales = "free", ncol =3)+
+  labs(title = "Vilion plot condizionato alle classi") 
 #TODO boxplot confronto Ca e RI x la scelta di quella da togliere in knn
+#Ma perchè metti To do qua quando c'è il read me (?), io ti consiglio di applicare malanobis
+#che tiene conto di corr lineari
 ```
 Questo grafico ci riesce a far capire 3 cose : 
 1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
@@ -166,63 +173,22 @@ set.seed(123)
 
 tree.glass <- tree(Type ~. , glass.train)
 summary(tree.glass)
-#plot(tree.glass); text(tree.glass, , pretty = 0) # albero completo # queste due linee vanno eseguite insieme
 tree.pred <- predict(tree.glass , glass.test[-10] , type = "class")
+plot(tree.glass); text(tree.glass, , pretty = 0) # albero completo # queste due linee vanno eseguite insieme
 #mean(tree.pred == glass.test$Type) 
+pruned.tree.k <-prune.tree(tree.glass  ,method="misclass")$k
 ```
 vediamo split inutili 
-```{r cross validation tree}
-set.seed (7)
-cv.tree.glass <- cv.tree(tree.glass , FUN = prune.misclass)
-par(mfrow = c(1, 2))
-plot(cv.tree.glass$size , cv.tree.glass$dev, type = "b")
-points(cv.tree.glass$size[which.min(cv.tree.glass$dev)], cv.tree.glass$dev[which.min(cv.tree.glass$dev)], col = "red", pch = 19)
-plot(cv.tree.glass$k, cv.tree.glass$dev, type = "b")
-```
+
 vediamo che con 11 leaf node è quello che predice meglio
 
-```{r testing cross validation tree}
-best.tree <-  prune.misclass(tree.glass , best = cv.tree.glass$size[which.min(cv.tree.glass$dev)])
-tree.pred <- predict(best.tree , glass.test[-10] , type = "class")
-confusionMatrix(tree.pred,glass.test$Type )
-mean(tree.pred == glass.test$Type) 
-```
 5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test
 
-```{r}
-plot(best.tree); text(best.tree,,pretty=0)
-```
 
-## Alberi 2
 
-```{r }
-train_norm<-glass.train
-test_norm<-glass.test
 
-tree.best.glass <- tree(Type ~. , glass.train)
-pruned.tree.k <-prune.tree(tree.best.glass  ,method="misclass")$k
-```
 
 ## KNN 
-
-```{r}
-# #esiste anche knn.cv !!!!!!!!!
-# Kmax<-20
-# knn.pred.k<-rep(0,Kmax)
-# X_train<-norm_glass %>% select(-Type)
-# labels<-norm_glass$Type #qua ho cambiato e non sembra essere cambiato nulla 
-# X_test<-norm_glass_test
-# for (i in 1:Kmax){
-#   set.seed(42)
-#   knn.pred <- knn(train=X_train, test=X_test, cl=labels, k = i)
-#   knn.pred.k[i]<-mean(knn.pred == glass.test$Type)
-# }
-# r<-rep("black",Kmax)
-# r[which.max(knn.pred.k)]<-"red"
-# plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
-# abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
-```
-
 
 ```{r}
 #v è un vettore colonna il primo valore è il minimo il secondo il massimo e il resto solo i valori effettivi delle colonne (Fe, Ba, etc)
@@ -252,15 +218,41 @@ normalize_2<-function(train,test){
 } 
 
 out<-normalize_2(glass.train[,-ncol(glass.train)],glass.test[,-ncol(glass.test)])
-out$train_norm[1:10,]
-out$test_norm[1:10,]
+# out$train_norm[1:10,]
+# out$test_norm[1:10,]
 #mi viene da piangere, ha runnato tutto senza bug
 #gervi fai un check che poi possiamo usarla
 ```
+```{r knn 1}
+#esiste anche knn.cv !!!!!!!!!
+Kmax<-20
+knn.pred.k<-rep(0,Kmax)
+X_train<- out$train_norm
+labels<-glass.train$Type #qua ho cambiato e non sembra essere cambiato nulla
+X_test<- out$test_norm
+for (i in 1:Kmax){
+  set.seed(42)
+  knn.pred <- knn(train=X_train, test=X_test, cl=labels, k = i)
+  knn.pred.k[i]<-mean(knn.pred == glass.test$Type)
+}
+r<-rep("black",Kmax)
+r[which.max(knn.pred.k)]<-"red"
+plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
+abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
+```
+
+
+
+
+
+
+
+
 ##Confronto metodi
 
 
 ```{r}
+set.seed(900) # teniamo questo
 cv<-7
 p<-1-1/cv
 n.train<-nrow(glass.train)
@@ -283,7 +275,6 @@ for (j in 1:cv){
   test_cv<-out_norm_cv$test_norm
   #metodo knn
   for (i in 1:knn.kmax){
-    set.seed(123)
     knn.pred <- knn(train=train_cv, test=test_cv, cl=labels_train[split != j], k = i)
     #knn.pred <- knnMCN(train=train_cv, test=test_cv, TstX = NULL, K = i, ShowObs = F) 
     #TENIAMO PRESENTE CHE FACENDO NORMALIZE IN QUESTO MODO IL     RUSLTATO CAMBIA TOTALMENTE E PASSA DA k=1 a k=4 CHE HA SENSO??? O FORSE CAMBIO DRASTICO...NORMALIZZARE COME AVEVO FATTO PRIMA       ERA SBAGLIATO E QUESTO MIGLIORAMENTO LO ATTESTA (CON E SENZA NORMALIZZAZIONE C'E UN CAMBIAMENTO BELLO STRONG). RAZIONALE CHE        USCISSE CON k=1 CHE QUINDI PROBABILMENTE ERA UNA E UNA SOLA VARIABILE DELL'UNICO PUNTO VICINO A FARE LA DIFFERENZA
@@ -298,7 +289,6 @@ for (j in 1:cv){
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
   for (i in 1:tree.size.max){
-    set.seed(123)
     pruned.tree <-prune.tree(tree.glass ,method="misclass", k= pruned.tree.k[i+1] )
     tree.pred <-predict(pruned.tree , test.cv.tree[-10] , type = "class")
     mat[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
@@ -307,50 +297,71 @@ for (j in 1:cv){
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo (meglio di no..)
 colnames(res)<-c("metodo","hyperparameter","accuracy")
 res<-as.tibble(res)
-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
+best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
       res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
-
+best.res
 ```
 
 loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 
 
 
+```{r grafico confronto}
+res %>%
+  ggplot(mapping  = aes(x = hyperparameter, y= accuracy, color=metodo))  +
+  geom_line()+ 
+  geom_point()+
+  facet_grid(~metodo) +
+  labs(title= "Variazione di Accuracy Rispetto a Iperparametri")
+ 
+```
+
+bisogna far capire che gli iperparametri qua non sono sovraponibili per 2 ragioni 
+più si va a destra per il knn meno il modello è variabile (è il contrario per gli alberi)
+non stanno misurando la stessa cosa
+
 # Test e conclusioni
 
-```{r}
+```{r test knn}
 out_norm<- normalize_2(glass.train[,-k.train],glass.test[,-k.train]) #k è lo stesso in ogni caso dai
 train_norm<-out_norm$train_norm
 test_norm<-out_norm$test_norm
 
 
 set.seed(123)
-knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = 4) #perchè con k=2 viene meglio e soprattutto cambia col valore del seed?????
-#non ha senso che stimiamo k=4 e usiamo K=2....altirmenti era come aver già fatto nella cross-validation
-#teniamo da parte il test set apposta perchè non vi siano influenze da parte del train/validation set. quindi se il migliore è con k=4 non ha senso usare k=2.... provo con diversi seed....
+knn.pred <- knn(train=train_norm, test=test_norm, cl=labels_train, k = best.res %>% filter(metodo=="knn") %>% pull(hyperparameter)) 
 #TOCCA SCEGLIERE IL SEED E USIAMO QUEL CHE CI ESCE
 mean(glass.test$Type == knn.pred) #molto più alto rispetto al validation...temo che usare solo 214 record è poco...
 ```
 
 
-```{r test}
+```{r test trees}
 #senza normalizzare 
 
 #qui seed non incide???
 tree.best.glass <- tree(Type ~. , glass.train)
-pruned.best.tree <-prune.tree(tree.best.glass  ,method="misclass", k = 1 ) #giusto fare =1 perchè è il migliore??? seed da scegliere
+pruned.best.tree <-prune.tree(tree.best.glass  ,method="misclass", k = best.res %>% filter(metodo=="tree") %>% pull(hyperparameter) ) 
 tree.best.pred <-predict(pruned.best.tree  , glass.test[-10] , type = "class")
 
 mean(glass.test$Type == tree.best.pred) 
 #BISOGNA RIVEDERE UN PO TUTA LA QUESTIONE cv E PERCENTUALE NEL TEST SET (O RIMETTIAMO cv=5 E perc=0.7 CHE COMUNQUE PER POCHI RECORD
-#HA SENSO E CI VIENE UN OUTPUT CARINO...PERò CON COSì TANTI DATI NEL TEST SET TEMO SI SOVRASTIMI LA PRECISIONE (MINOR BIAS A FRONTE DI MAGGIOR VARIANZA CHE HA SENSO CAMBIANDO IL seed OTTENIAMO VALORI SBALLATI...))
+#HA SENSO E CI VIENE UN OUTPUT CARINO...PERò CON COSì TANTI DATI NEL TEST SET TEMO SI SOVRASTIMI LA PRECISIONE (MINOR BIAS A FRONTE DI MAGGIOR VARIANZA CHE HA SENSO CAMBIANDO IL seed OTTENIAMO VALORI SBALLATI...) -> quel poco che sono riuscito a capire mi sembra sbagliato prova a mandare un audio 
 ```
 ## Logistic Multi-Class
 
-```{r test}
+```{r test logistic Multi-Class}
 #mi sa che sta cosa me la sono inventata...
 mod<-multinom(formula = Type~.,data = glass.train)
 pred<-predict(mod,glass.test[,-k])
 pred
 mean(pred==glass.test$Type) #FENOMENALE (DA RIVEDERE)
 ```
+-----------------------------
+
+
+
+
+
+
+
+

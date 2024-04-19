@@ -368,7 +368,6 @@ pred<-predict(mod,glass.test[,-k])
 pred
 mean(pred==glass.test$Type) #FENOMENALE (DA RIVEDERE)
 ```
------------------------------
 
 
 

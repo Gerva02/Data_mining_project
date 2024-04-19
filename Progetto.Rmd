@@ -32,6 +32,27 @@ library(nnet)
 #library(knnGarden)
 ```
 # Analisi esplorativa
+# Preprocessing
+
+```{r division dataset}
+#questa è una funzione che divide tra test e train (magari ci serve nel CV)
+dataset_division <- function(D1, perc = 0.7) {
+  set.seed(42)
+  id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
+  train <- D1[id,]
+  test <- D1[-id,]
+  out <- list(train = train, test = test)
+}
+
+#Qua abbiamo diviso magari dobbiamo normalizzare 
+set.seed(123)
+glass.train <- dataset_division(glass,perc=0.85)$train #non ha senso 30% nel test set se facciamo cv (????)
+glass.test <- dataset_division(glass,perc=0.85)$test 
+
+#non trovo il comando per farlo per tutto il data set senza usare apply (dovremmo fare un apply)
+# ma inoltre per ogni colonna (se normalizziamo) dobbiamo salvare min e max (e dopo veranno applicati sul test)
+
+```
 
 
 
@@ -48,10 +69,10 @@ k<-ncol(glass)
 
 
 ```{r ggcorplots}
-# glass%>%
+# glass.train%>%
 #   select(-Type) %>%
-#   ggpairs(mapping = aes(color = glass$Type))  
-ggcorrplot(cor(glass%>%
+#   ggpairs(mapping = aes(color = glass.train$Type))  
+ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari")
 ```
@@ -60,13 +81,13 @@ CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà v
 
 ```{r barplot}
 #questo bar plot è riguardo freq relative
-glass %>%
+glass.train %>%
   ggplot(aes(x= Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
   geom_bar() +
   labs(title = "Frequenza Relativa delle Classi",y= "Freq Rel")
  
 #questo bar plot è riguardo freq assolute
-glass %>%
+glass.train %>%
   ggplot(aes(x= Type, y = after_stat(count), fill = Type)) + 
   geom_bar() +
   labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
@@ -75,7 +96,7 @@ probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 
 dobbiamo scegliere quale tra le due prendere 
 
 ```{r}
-glass %>% 
+glass.train %>% 
   select(-Type)%>%
   gather(key = tipo, value=valore)%>%
   ggplot(mapping= aes(y = valore)) +
@@ -90,7 +111,7 @@ glass %>%
 
 ```{r}
 #qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
-glass %>%
+glass.train %>%
   gather(key = Measure, value = valore, -Type )  %>%
   ggplot(aes(x = Type, y= valore, color = Measure)) +
   geom_violin(trim = F)+ 
@@ -108,24 +129,36 @@ Questo grafico ci riesce a far capire 3 cose :
 
 vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) 
 ```{r}
-glass %>%
+glass.train %>%
   filter(Type == "6")
 ```
+```{r}
+glass.train %>%
+  filter(if_any("RI" : "Fe", ~ . > 0 ))
+```
 
+ulla
+```{r}
+glass.train %>%
+  gather(key = Measure, value = valore, -Type )  %>%
+  ggplot(aes(x= valore , color = Type)) +
+  geom_density() +
+  facet_wrap(~Measure, scales= "free")
+```
 
 
 ```{r shapiro test}
 #qua si crea tabella pvalues
-pvalue_shapiro <- matrix(0, nrow = (dim(glass)[2]-1), ncol = 6)
-rownames(pvalue_shapiro) = colnames(glass)[-10]
-colnames(pvalue_shapiro) = levels(glass$Type)
+pvalue_shapiro <- matrix(0, nrow = (dim(glass.train)[2]-1), ncol = 6)
+rownames(pvalue_shapiro) = colnames(glass.train)[-10]
+colnames(pvalue_shapiro) = levels(glass.train$Type)
 #-----
 
 # Test Shapiro e costruzione di una matrice riassuntiva con i p-value condizionati alla classe
-for (i in colnames(glass)[-10]){
-  for (j in levels(glass$Type)){
+for (i in colnames(glass.train)[-10]){
+  for (j in levels(glass.train$Type)){
     pvalue_shapiro[i,j]<-
-      shapiro.test( jitter(glass %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
+      shapiro.test( jitter(glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
     # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
   }
 }
@@ -136,27 +169,6 @@ round(pvalue_shapiro, 5)
 ```
 
 
-# Preprocessing
-
-```{r division dataset}
-#questa è una funzione che divide tra test e train (magari ci serve nel CV)
-dataset_division <- function(D1, perc = 0.7) {
-  set.seed(42)
-  id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
-  train <- D1[id,]
-  test <- D1[-id,]
-  out <- list(train = train, test = test)
-}
-
-#Qua abbiamo diviso magari dobbiamo normalizzare 
-set.seed(123)
-glass.train <- dataset_division(glass,perc=0.85)$train #non ha senso 30% nel test set se facciamo cv
-glass.test <- dataset_division(glass,perc=0.85)$test 
-
-#non trovo il comando per farlo per tutto il data set senza usare apply (dovremmo fare un apply)
-# ma inoltre per ogni colonna (se normalizziamo) dobbiamo salvare min e max (e dopo veranno applicati sul test)
-
-```
 
 
 

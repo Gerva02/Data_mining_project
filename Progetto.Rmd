@@ -38,10 +38,27 @@ In questo progetto viene analizzato un dataset contenente diverse tipologie di v
 L'obiettivo è la classificazione di diversi vetri in studio, tramite l'analisi del loro indice di rifrazione e di alcuni elementi chimici presenti.
 Nel lavoro verranno utilizzate e confrontate (TOT) tecniche di classificazione ovvero (…).
 
+
+#Introduzione
+
+Il vetro è un materiale solido che viene detto amorfo, in quanto si comporta come un solido a temperatura ambiente, ma possedendo a livello microscopico una struttura disordinata e rigida, al contrario della struttura ordinata dei normali solidi. Il vetro deriva infatti dalla solidificazione di un liquido.
+I normali vetri sono prevalentemente costituiti da ossido di silicio, ma spesso in fase di produzione vengono aggiunte altre sostanze che ne vanno a modificare le proprietà e le funzioni. 
+
+La previsione della tipologia di certi vetri può essere rilevante in alcuni ambiti. 
+I dati utilizzati in questo progetto erano infatti stati raccolti con la finalità di indagini di criminologia. Tramite lo studio della classificazione del tipo di vetro è infatti possibile ottenere diverse evidenze. Ad esempio, un bicchiere sulla scena di un crimine può essere usato come una prova.
+Altre ricerche, della University of California, sono volte, tramite la classificazione, a determinare se un determinato vetro sia float o meno.
+Il vetro float, o vetro galleggiante, è infatti ad oggi il vetro più prodotto e utilizzato sul mercato. Grazie alle sue qualità è infatti ideale per diverse applicazioni come vetri per automobili, specchi, finestre o porte, ma anche per la produzione di vetri più specializzati come quello temperato, smerigliato, laminato o insonorizzato.
+
+Il fine del progetto è quindi quello di trovare modelli che classifichino, con maggiore precisione possibile, la tipologia di ciascun vetro, data la sua composizione e analisi chimica.
+
+QUI POTREMO DIRE BREVEMENTE I METODI UTILIZZATI E SOPRATTUTO QUELLI NON USATIE PERCHè
+
+
+#Materiali
+
+
+
 # Analisi esplorativa
-
-
-
 
 # Preprocessing
 ```{r import e inizio }

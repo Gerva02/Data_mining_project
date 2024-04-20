@@ -69,7 +69,18 @@ La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di
   *Ca: Calcio
   *Ba: Bario
   *Fe: Ferro
-*Type
+*Type: La tipologia di vetro, è la __variabile target__. È suddivisa in 7 classi.
+  1. building_windows_float_processed
+  2. building_windows_non_float_processed
+  3. vehicle_windows_float_processed
+  4. vehicle_windows_non_float_processed 
+  5. containers
+  6. tableware
+  7. headlamps
+
+La variabile target è analizzata come un *Factor* in R. Per la classe 4 non sono presenti valori nel dataset.
+
+Sono state effettuate analisi per il controllo di valori mancanti ed è stato riscontrato che non sono presenti rendendo quindi non necessarie tutte le tecniche volte all'imputazione o rimozione di essi.
 
 
 

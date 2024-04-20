@@ -31,7 +31,8 @@ library(class)
 library(nnet)
 #library(knnGarden)
 ```
-# Analisi esplorativa 2
+# Abstract
+# Analisi esplorativa
 # Preprocessing
 ```{r import e inizio }
 path <- "glass.csv"

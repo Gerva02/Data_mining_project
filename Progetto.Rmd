@@ -308,23 +308,22 @@ mahalanobis_dist <- function(x, mean_vec, sigma_inv) {
 
 predict_label <- function(v, train, mat, k, train_lab) {
   dists <- apply(train, MARGIN = 1, function(x) mahalanobis_dist(x, v, mat))
-  check <- cbind(dists, train_lab)
-  colnames(check) <- c("dist", "lab")
+  check <- data.frame("dist"=dists,"lab"=train_lab)
   check <- as.tibble(check)
-  check_ord <- top_n(check, wt = dist, n = k)
+  check_ord <- top_n(check, k, wt = dist)
   return(mode(check_ord$lab))
 }
 
 # si implementa una funzione per l'applicazione del metodo knn tramite distanza di mahalanobis
 knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
   x_matrix_inv <- solve(cor(train))
-  pred <- sapply(as.data.frame(t(valid)), function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
+  pred <- apply(valid, MARGIN = 1, function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
   out <- mean(pred == valid_lab)
   return(out)
 }
 
 
-knn_mahalanobis(glass.train[,1:9], glass.test[,1:9], glass.train$Type, glass.test$Type, k=5)
+knn_mahalanobis(glass.train[,1:9], glass.test[,1:9], glass.train$Type, glass.test$Type, k=5) #NON VA
 ```
 
 

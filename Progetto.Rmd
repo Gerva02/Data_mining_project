@@ -31,7 +31,18 @@ library(class)
 library(nnet)
 #library(knnGarden)
 ```
-# Analisi esplorativa 2
+
+#Abstract
+
+In questo progetto viene analizzato un dataset contenente diverse tipologie di vetri.
+L'obiettivo è la classificazione di diversi vetri in studio, tramite l'analisi del loro indice di rifrazione e di alcuni elementi chimici presenti.
+Nel lavoro verranno utilizzate e confrontate (TOT) tecniche di classificazione ovvero (…).
+
+# Analisi esplorativa
+
+
+
+
 # Preprocessing
 ```{r import e inizio }
 path <- "glass.csv"

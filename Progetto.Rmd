@@ -301,9 +301,15 @@ glass.train %>%
 #si prova con mahalanobis distance
 
 mahalanobis_dist <- function(x, mean_vec, sigma_inv) {
-  diff_vec <- t(x - mean_vec)
+  diff_vec <- t(t(x) - mean_vec)
   out <- sqrt(rowSums((diff_vec %*% sigma_inv) * diff_vec))
   return(out)
+}
+
+find_mode <- function(x) {
+  u <- unique(x)
+  tab <- tabulate(match(x, u))
+  u[tab == max(tab)]
 }
 
 predict_label <- function(v, train, mat, k, train_lab) {
@@ -311,14 +317,14 @@ predict_label <- function(v, train, mat, k, train_lab) {
   check <- data.frame("dist"=dists,"lab"=train_lab)
   check <- as.tibble(check)
   check_ord <- top_n(check, k, wt = dist)
-  return(mode(check_ord$lab))
+  return(find_mode(as.factor(check_ord$lab)))
 }
 
 # si implementa una funzione per l'applicazione del metodo knn tramite distanza di mahalanobis
 knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
   x_matrix_inv <- solve(cor(train))
   pred <- apply(valid, MARGIN = 1, function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
-  out <- mean(pred == valid_lab)
+  out <- mean(as.factor(pred) == valid_lab)
   return(out)
 }
 

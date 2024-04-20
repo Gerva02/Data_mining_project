@@ -31,8 +31,7 @@ library(class)
 library(nnet)
 #library(knnGarden)
 ```
-# Abstract
-# Analisi esplorativa
+# Analisi esplorativa 2
 # Preprocessing
 ```{r import e inizio }
 path <- "glass.csv"
@@ -220,7 +219,7 @@ vediamo che con 11 leaf node è quello che predice meglio
 
 
 
-## KNN 
+
 
 ```{r}
 #v è un vettore colonna il primo valore è il minimo il secondo il massimo e il resto solo i valori effettivi delle colonne (Fe, Ba, etc)
@@ -255,6 +254,23 @@ out<-normalize_2(glass.train[,-ncol(glass.train)],glass.test[,-ncol(glass.test)]
 #mi viene da piangere, ha runnato tutto senza bug
 #gervi fai un check che poi possiamo usarla
 ```
+## KNN 
+
+#dealing with multicollinearity
+
+```{r knn 1}
+glass.train %>%
+  select(Ca,RI,Type)%>%
+  gather(key = Measure, value = valore, -Type )  %>%
+  ggplot(aes(x = Type, y= valore, color = Measure)) +
+  geom_violin(trim = F)+
+  geom_boxplot(width=0.1) + 
+  facet_wrap( ~ Measure ,scales = "free", ncol =3)+
+  labs(title = "Vilion plot condizionato alle classi") #presumo Ca sia un po' più impattante di RI
+```
+
+
+
 ```{r knn 1}
 #esiste anche knn.cv !!!!!!!!!
 Kmax<-20

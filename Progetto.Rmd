@@ -96,6 +96,8 @@ n<-nrow(glass)
 k<-ncol(glass)
 ```
 
+In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 85% casuale dei nostri dati, mentre il test il restante 15%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
+
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
 dataset_division <- function(D1, perc = 0.7) {
@@ -116,6 +118,8 @@ glass.test <- dataset_division(glass,perc=0.85)$test
 
 ```
 
+Innanzitutto, è rappresentata la matrice di correlazione tra tutte le nostre variabili, tutte quantitative, esclusa ovviamente la variabile target. Si nota una forte correlazione positiva tra Ca e RI.
+((((( per alberi non fa niente ma per Knn andrà vista ))))
 
 ```{r ggcorplots}
 # glass.train%>%
@@ -125,8 +129,10 @@ ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari")
 ```
-CA e RI sono estremamente correlati per alberi non fa niente ma per Knn andrà vista 
+Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, realtive e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
+((((probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
+dobbiamo scegliere quale tra le due prendere )))))
 
 ```{r barplot}
 #questo bar plot è riguardo freq relative
@@ -141,8 +147,7 @@ glass.train %>%
   geom_bar() +
   labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
 ```
-probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
-dobbiamo scegliere quale tra le due prendere 
+
 
 ```{r}
 glass.train %>% 

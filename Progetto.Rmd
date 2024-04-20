@@ -59,15 +59,16 @@ QUI POTREMO DIRE BREVEMENTE I METODI UTILIZZATI E SOPRATTUTO QUELLI NON USATIE P
 Il dataset impiegato, *Glass Classification* è stato scaricato dalla piattaforma Kaggle. Proviene dalla USA Forensic Science Service ed è messo a disposizione anche dalla University of California, le quali lo hanno utilizzato per le indagini e analisi di cui sopra.
 
 La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di seguito.
-*RI
-*Na
-*Mg
-*Al
-*Si
-*K
-*Ca
-*Ba
-*Fe
+*RI: l'indice di rifrazione del vetro, una grandezza adimensionale
+*8 elementi chimici, tutti espressi in percentuale in peso all'interno dell'ossido corrispondente.
+  *Na: Sodio
+  *Mg: Magnesio
+  *Al: Alluminio
+  *Si: Silicio
+  *K: Potassio
+  *Ca: Calcio
+  *Ba: Bario
+  *Fe: Ferro
 *Type
 
 

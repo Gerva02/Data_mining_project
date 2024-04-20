@@ -256,6 +256,27 @@ out<-normalize_2(glass.train[,-ncol(glass.train)],glass.test[,-ncol(glass.test)]
 ```
 ## KNN 
 
+
+
+
+
+```{r knn 1}
+#esiste anche knn.cv !!!!!!!!!
+Kmax<-20
+knn.pred.k<-rep(0,Kmax)
+X_train<- out$train_norm
+labels<-glass.train$Type #qua ho cambiato e non sembra essere cambiato nulla
+X_test<- out$test_norm
+for (i in 1:Kmax){
+  set.seed(42)
+  knn.pred <- knn(train=X_train, test=X_test, cl=labels, k = i)
+  knn.pred.k[i]<-mean(knn.pred == glass.test$Type)
+}
+r<-rep("black",Kmax)
+r[which.max(knn.pred.k)]<-"red"
+plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
+abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
+```
 #dealing with multicollinearity
 
 ```{r knn 1}
@@ -268,28 +289,20 @@ glass.train %>%
   facet_wrap( ~ Measure ,scales = "free", ncol =3)+
   labs(title = "Vilion plot condizionato alle classi") #presumo Ca sia un po' più impattante di RI però non porta 
   #ad alcun miglioramento toglierne una sola
-```
 
-
-
-```{r knn 1}
-#esiste anche knn.cv !!!!!!!!!
-Kmax<-20
-knn.pred.k<-rep(0,Kmax)
-X_train<- out$train_norm[,-1]
-labels<-glass.train$Type #qua ho cambiato e non sembra essere cambiato nulla
-X_test<- out$test_norm[,-1]
-for (i in 1:Kmax){
-  set.seed(42)
-  knn.pred <- knn(train=X_train, test=X_test, cl=labels, k = i)
-  knn.pred.k[i]<-mean(knn.pred == glass.test$Type)
+#si prova con mahalanobis distance
+mahalanobis_dist <- function(x, center, cov_inv) {
+  diff_vec <- t(t(x) - center)
+  mahalanobis_dists <- sqrt(rowSums((diff_vec %*% cov_inv) * diff_vec))
+  return(mahalanobis_dists)
 }
-r<-rep("black",Kmax)
-r[which.max(knn.pred.k)]<-"red"
-plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
-abline(h=max(knn.pred.k),col="purple") #mi sa che ho rotto qualcosa ma è un po' incoprensibile che cosa
-```
 
+x_mean<-colMeans(glass.train[,-k])
+x_matrice_var_cov<-cor(glass.train[,-k])
+
+X_train_mahala<-mahalanobis_dist(glass.train[,-k],x_mean,solve(x_matrice_var_cov))
+X_train_mahala #non mi torna????
+```
 
 
 

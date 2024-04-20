@@ -33,6 +33,13 @@ library(nnet)
 ```
 # Analisi esplorativa
 # Preprocessing
+```{r import e inizio }
+path <- "glass.csv"
+glass <- tibble(read.table(path , sep = "," , header = T))
+glass$Type <- factor(glass$Type)
+n<-nrow(glass)
+k<-ncol(glass)
+```
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
@@ -53,19 +60,6 @@ glass.test <- dataset_division(glass,perc=0.85)$test
 # ma inoltre per ogni colonna (se normalizziamo) dobbiamo salvare min e max (e dopo veranno applicati sul test)
 
 ```
-
-
-
-```{r import e inizio }
-path <- "glass.csv"
-glass <- tibble(read.table(path , sep = "," , header = T))
-glass$Type <- factor(glass$Type)
-n<-nrow(glass)
-k<-ncol(glass)
-```
-
-
-
 
 
 ```{r ggcorplots}
@@ -152,14 +146,14 @@ p <-glass.train %>%
   select( -c("Fe", "K" , "Ba", "Type"))
 p1 <- p %>% 
   apply(MARGIN =2 , FUN = powerTransform, family = "bcnPower")  
-a3 <- as.vector(c( sos$RI[1]$lambda,sos$Na[1]$lambda , sos$Mg[1]$lambda, sos$Al[1]$lambda, sos$Si[1]$lambda,sos$Ca[1]$lambda))
+a3 <- as.vector(c( p1$RI[1]$lambda,p1$Na[1]$lambda , p1$Mg[1]$lambda, p1$Al[1]$lambda, p1$Si[1]$lambda,p1$Ca[1]$lambda))
 colnames(p)
 col
 transformedY <- bcPower(with(p, cbind(RI, Na, Mg, Al, Si, Ca)),
                 lambda = a3 ,gamma= 0.01)
-?bcPower
 
-transformed.glass <- tibble(cbind(as.data.frame(transformedY)), Type = labels_train)
+transformed.glass <- tibble(cbind(as.data.frame(transformedY)), Type = glass.train$Type
+)
 
 transformed.glass%>%
   gather(key = Measure, value = valore, -Type )  %>%

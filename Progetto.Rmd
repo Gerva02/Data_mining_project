@@ -463,15 +463,13 @@ for (j in 1:cv){
   }
     
   
-  train.cv.tree <- glass.train[split != j  ,-k.train] 
-  test.cv.tree  <-glass.train[split ==j ,-k.train]
-  train.cv.tree$Type <-labels_train[split != j]
-  test.cv.tree$Type <-labels_train[split ==j]
+  train.cv.tree <- glass.train[split != j,] 
+  test.cv.tree  <-glass.train[split ==j,]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
   for (i in 1:tree.size.max){
     pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[i+1] )
-    tree.pred <-predict(pruned.tree , test.cv.tree[-10] , type = "class")
+    tree.pred <-predict(pruned.tree , test.cv.tree[,-10] , type = "class")
     mat[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
 }
@@ -575,23 +573,21 @@ for (j in 1:cv){
   }
     
   
-  train.cv.tree <- transformed.glass.train[split != j  ,-k.train] 
-  test.cv.tree  <-transformed.glass.train[split ==j ,-k.train]
-  train.cv.tree$Type <-labels_train[split != j]
-  test.cv.tree$Type <-labels_train[split ==j]
+  train.cv.tree <- transformed.glass.train[split != j,] 
+  test.cv.tree  <-transformed.glass.train[split == j,]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
   for (i in 1:tree.size.max){
     pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[i+1] )
-    tree.pred <-predict(pruned.tree , test.cv.tree[-10] , type = "class")
+    tree.pred <-predict(pruned.tree , test.cv.tree[,-7] , type = "class")
     mat_2[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
 }
 res_2<-cbind(mat_2[,c(1,2)],apply(mat_2[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo (meglio di no..)
 colnames(res_2)<-c("metodo","hyperparameter","accuracy")
 res<-as.tibble(res_2)
-best.res_2<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
-      res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
+best.res_2<-rbind(res_2%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
+      res_2%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
 best.res_2
 
 ```

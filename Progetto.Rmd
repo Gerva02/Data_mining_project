@@ -208,6 +208,8 @@ glass.train %>%
 library(car)
 p <-glass.train %>% 
   select( -c("Fe", "K" , "Ba", "Type"))
+p.test <-glass.test %>%
+  select( -c("Fe", "K" , "Ba", "Type"))
 p1 <- p %>% 
   apply(MARGIN =2 , FUN = powerTransform, family = "bcnPower")  
 a3 <- as.vector(c( p1$RI[1]$lambda,p1$Na[1]$lambda , p1$Mg[1]$lambda, p1$Al[1]$lambda, p1$Si[1]$lambda,p1$Ca[1]$lambda))
@@ -215,11 +217,13 @@ colnames(p)
 col
 transformedY <- bcPower(with(p, cbind(RI, Na, Mg, Al, Si, Ca)),
                 lambda = a3 ,gamma= 0.01)
+transformedY.test <- bcPower(with(p.test, cbind(RI, Na, Mg, Al, Si, Ca)),
+                lambda = a3 ,gamma= 0.01)
 
-transformed.glass <- tibble(cbind(as.data.frame(transformedY)), Type = glass.train$Type
-)
+transformed.glass.train <- tibble(cbind(as.data.frame(transformedY)), Type = glass.train$Type)
+transformed.glass.test <- tibble(cbind(as.data.frame(transformedY.test)), Type = glass.test$Type)
 
-transformed.glass%>%
+transformed.glass.train%>%
   gather(key = Measure, value = valore, -Type )  %>%
   ggplot(aes(x= valore , colour= Type)) +
   geom_density() +
@@ -251,7 +255,26 @@ pvalue_shapiro["Ca", "6" ] <- pvalue_shapiro["K", "6" ] <- pvalue_shapiro["Fe", 
 round(pvalue_shapiro, 5)
 ```
 
+```{r shapiro test dati trasformati}
+#qua si crea tabella pvalues
+pvalue_shapiro_2 <- matrix(0, nrow = (dim(transformed.glass.train)[2]-1), ncol = 6)
+rownames(pvalue_shapiro_2) = colnames(transformed.glass.train)[-7]
+colnames(pvalue_shapiro_2) = levels(transformed.glass.train$Type)
+#-----
 
+# Test Shapiro e costruzione di una matrice riassuntiva con i p-value condizionati alla classe
+for (i in colnames(transformed.glass.train)[-7]){
+  for (j in levels(glass.train$Type)){
+    pvalue_shapiro_2[i,j]<-
+      shapiro.test( jitter(transformed.glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
+    # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
+  }
+}
+
+#pvalue_shapiro["Ca", "6" ] <- pvalue_shapiro["K", "6" ] <- pvalue_shapiro["Fe", "6" ] <- NA
+
+round(pvalue_shapiro_2, 5)
+```
 
 
 

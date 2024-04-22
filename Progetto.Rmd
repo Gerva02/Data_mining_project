@@ -29,7 +29,7 @@ library("tree")
 library(ggcorrplot)
 library(class)
 library(nnet)
-#library(knnGarden)
+#install.packages("hunspell")
 ```
 
 # Abstract
@@ -113,7 +113,7 @@ dataset_division <- function(D1, perc = 0.7) {
 }
 
 #Qua abbiamo diviso magari dobbiamo normalizzare 
-set.seed(123)
+set.seed(900)
 glass.train <- dataset_division(glass,perc=0.85)$train #non ha senso 30% nel test set se facciamo cv (????)
 glass.test <- dataset_division(glass,perc=0.85)$test 
 
@@ -289,7 +289,7 @@ round(pvalue_shapiro_2, 5)
 ## Alberi
 ```{r alberi}
 #qua ho fatto un albero e sembra buono (migliorerà soltanto se normalizziam
-set.seed(123)
+set.seed(500)
 
 tree.glass <- tree(Type ~. , glass.train)
 summary(tree.glass)
@@ -469,10 +469,10 @@ for (j in 1:cv){
   test.cv.tree  <-glass.train[split ==j,]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
-  for (i in 1:tree.size.max){
-    pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[i+1] )
+  for (l in 1:tree.size.max){
+    pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[l+1] )
     tree.pred <-predict(pruned.tree , test.cv.tree[,-10] , type = "class")
-    mat[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
+    mat[knn.kmax+l,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
 }
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo (meglio di no..)
@@ -539,10 +539,10 @@ for (j in 1:cv){
   test.cv.tree  <-transformed.glass.train[split == j,]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
-  for (i in 1:tree.size.max){
-    pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[i+1] )
+  for (l in 1:tree.size.max){
+    pruned.tree <-prune.tree(tree.glass.cv ,method="misclass", k= pruned.tree.k[l+1] )
     tree.pred <-predict(pruned.tree , test.cv.tree[,-7] , type = "class")
-    mat_2[knn.kmax+i,j+2]<- mean(tree.pred == labels_train[split ==j])
+    mat_2[knn.kmax+l,j+2]<- mean(tree.pred == labels_train[split ==j])
   }
 }
 res_2<-cbind(mat_2[,c(1,2)],apply(mat_2[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo (meglio di no..)
@@ -556,8 +556,8 @@ best.res_2
 
 # Test e conclusioni
 
-```{r test knn}
-out_norm<- normalize_2(glass.train[,-k.train],glass.test[,-k.train]) #k è lo stesso in ogni caso dai
+```{r test knn nomr}
+out_norm <- normalize_2(glass.train[,-10],glass.test[,-10]) #k è lo stesso in ogni caso dai
 train_norm<-out_norm$train_norm
 test_norm<-out_norm$test_norm
 
@@ -592,6 +592,7 @@ mean(glass.test$Type == tree.best.pred)
 #BISOGNA RIVEDERE UN PO TUTA LA QUESTIONE cv E PERCENTUALE NEL TEST SET (O RIMETTIAMO cv=5 E perc=0.7 CHE COMUNQUE PER POCHI RECORD
 #HA SENSO E CI VIENE UN OUTPUT CARINO...PERò CON COSì TANTI DATI NEL TEST SET TEMO SI SOVRASTIMI LA PRECISIONE (MINOR BIAS A FRONTE DI MAGGIOR VARIANZA CHE HA SENSO CAMBIANDO IL seed OTTENIAMO VALORI SBALLATI...) -> quel poco che sono riuscito a capire mi sembra sbagliato prova a mandare un audio 
 ```
+
 ```{r test trees variabili trasformate}
 #senza normalizzare 
 
@@ -604,6 +605,8 @@ mean(transformed.glass.test$Type == tree.best.pred.transf)
 #BISOGNA RIVEDERE UN PO TUTA LA QUESTIONE cv E PERCENTUALE NEL TEST SET (O RIMETTIAMO cv=5 E perc=0.7 CHE COMUNQUE PER POCHI RECORD
 #HA SENSO E CI VIENE UN OUTPUT CARINO...PERò CON COSì TANTI DATI NEL TEST SET TEMO SI SOVRASTIMI LA PRECISIONE (MINOR BIAS A FRONTE DI MAGGIOR VARIANZA CHE HA SENSO CAMBIANDO IL seed OTTENIAMO VALORI SBALLATI...) -> quel poco che sono riuscito a capire mi sembra sbagliato prova a mandare un audio 
 ```
+
+
 
 
 ## Logistic Multi-Class

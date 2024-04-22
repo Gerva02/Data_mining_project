@@ -133,10 +133,12 @@ ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari")
 ```
-Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, realtive e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
+Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
-((((probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
-dobbiamo scegliere quale tra le due prendere )))))
+Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.
+Questa situazione si identifica nel problema di classi sbilanciate, ovvero quando nel set di dati di addestramento (training set) i dati non ugualmente distribuiti tra le classi, portando a possibili maggiori errori predittivi.
+In questi contesti è solito cercare di ribilanciare le classi, tramite tecniche di oversampling (SMOTE) o undersampling, in particolare se si ritiene di una certa importanza inidviduare determinate classi meno presenti.
+Tuttavia, successivamente ad alcune ricerche, non è stato ritenuto opportuno applicare queste tecniche al dataset in analisi. Infatti, non è presente nessuna classe di tipologia di vetri più rilevante rispetto ad altre.
 
 ```{r barplot}
 #questo bar plot è riguardo freq relative

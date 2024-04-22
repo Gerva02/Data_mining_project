@@ -134,6 +134,7 @@ ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari") #FAREI I GRAFICI SU "Glass" intero....(e metterei la divisione train/test dopo tutti i grafici)
 ```
+
 Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
 Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.

@@ -100,7 +100,7 @@ n<-nrow(glass)
 k<-ncol(glass)
 ```
 
-In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 85% casuale dei nostri dati, mentre il test il restante 15%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
+In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 80% casuale dei nostri dati, mentre il test il restante 20%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
@@ -177,8 +177,6 @@ Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:
 * La varianza e la scala degli elementi chimici sono diverse tra di loro: questo porta a effettuare una normalizzazione, utile per esempio quando verrà applicato l'algoritmo K-NN.
 * La varianza per ogni classe per ognuna delle variabili è diversa: questo porta ad escludere l'utilizzo dell'analisi discriminante lineare (LDA), in quanto ipotesi necessaria di essa. 
 * La distribuzione condizionata per ogni elemento chimico non sembra essere quasi mai normale: viene quindi rifiutata anche l'analisi discriminante quadratica (QDA), oltre a LDA. Si conferma inoltre l'asimmetria. 
-
-
 
 
 ```{r}

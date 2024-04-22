@@ -133,10 +133,12 @@ ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari")
 ```
-Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, realtive e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
+Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
-((((probabilmente c'è da trattare problema di dati sbilanciati con smote per 3 5 e 6 
-dobbiamo scegliere quale tra le due prendere )))))
+Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.
+Questa situazione si identifica nel problema di classi sbilanciate, ovvero quando nel set di dati di addestramento (training set) i dati non ugualmente distribuiti tra le classi, portando a possibili maggiori errori predittivi.
+In questi contesti è solito cercare di ribilanciare le classi, tramite tecniche di oversampling (SMOTE) o undersampling, in particolare se si ritiene di una certa importanza inidviduare determinate classi meno presenti.
+Tuttavia, successivamente ad alcune ricerche, non è stato ritenuto opportuno applicare queste tecniche al dataset in analisi. Infatti, non è presente nessuna classe di tipologia di vetri più rilevante rispetto ad altre.
 
 ```{r barplot}
 #questo bar plot è riguardo freq relative
@@ -151,7 +153,7 @@ glass.train %>%
   geom_bar() +
   labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
 ```
-
+Vengono di seguito riportati i boxplot di ciascuna delle variabili, senza aver effettuato nessun tipo di trasformazione. Si nota in alcune una distribuzione abbastanza sbilanciata, con la presenza di un'asimmetria. Altre variabili sembrano invece abbastanza simmetriche e senza la presenza di alcun outlier.
 
 ```{r}
 glass.train %>% 
@@ -163,8 +165,16 @@ glass.train %>%
   labs(title = "Box Plot con Tutte le Variabili")
   
 ```
+(((vilion o violin?)))
 
+È utile osservare anche il Vilion plot delle variabili condizionato alle classi.
+Tramite questo grafico si riescono infatti a notare 3 cose:
+Questo grafico ci riesce a far capire 3 cose : 
+1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
+2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
+3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
 
+vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
 
 
 ```{r}
@@ -180,12 +190,7 @@ glass.train %>%
 #Ma perchè metti To do qua quando c'è il read me (?), io ti consiglio di applicare malanobis
 #che tiene conto di corr lineari
 ```
-Questo grafico ci riesce a far capire 3 cose : 
-1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
-2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
-3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
 
-vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) 
 ```{r}
 glass.train %>%
   filter(Type == "6")

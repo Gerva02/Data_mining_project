@@ -438,7 +438,7 @@ questo chunk è anche buggato
 
 ```{r}
 set.seed(900) # teniamo questo
-cv<-7
+cv<-5
 p<-1-1/cv
 n.train<-nrow(glass.train)
 k.train <-ncol(glass.train)
@@ -452,7 +452,9 @@ mat[1:knn.kmax,2]<-1:knn.kmax
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<- pruned.tree.k[2:(length(pruned.tree.k)-1)]
 
 set.seed(123)
-split<-sample(rep(c(1:cv),n.train/cv), size=n.train) #non ha senso questo metodo, capisco avere stessa proporzione ma usiamo una tecnica più flessibile se modifichiamo cv o proporzione train/test all'inizio (30% nel test set mi sembra eccessivo)
+group_num <- rep(c(1:cv), round(n.train/cv))
+random_assign <- sample( c(1:cv),size = n.train - length(group_num)) # ne mancheranno sempre cv o meno quindi non ci serve replace
+split<-sample( append(group_num, random_assign) , size=n.train) #non ha senso questo metodo, capisco avere stessa proporzione ma usiamo una tecnica più flessibile se modifichiamo cv o proporzione train/test all'inizio (30% nel test set mi sembra eccessivo)
 
 #loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 for (j in 1:cv){
@@ -482,6 +484,7 @@ for (j in 1:cv){
 }
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) #possiamo usare median se vogliamo (meglio di no..)
 colnames(res)<-c("metodo","hyperparameter","accuracy")
+
 res<-as.tibble(res)
 best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
       res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
@@ -509,7 +512,7 @@ non stanno misurando la stessa cosa
 
 ```{r cv transformed variables}
 set.seed(900) # teniamo questo
-cv<-7
+cv<-5
 p<-1-1/cv
 n.train<-nrow(transformed.glass.train)
 k.train <-ncol(transformed.glass.train)
@@ -523,11 +526,12 @@ mat_2[1:knn.kmax,2]<-1:knn.kmax
 mat_2[(knn.kmax+1):(knn.kmax+tree.size.max),2]<- pruned.tree.k[2:(length(pruned.tree.k)-1)]
 
 set.seed(123)
-split<-sample(rep(c(1:cv),n.train/cv), size=n.train) #non ha senso questo metodo, capisco avere stessa proporzione ma usiamo una tecnica più flessibile se modifichiamo cv o proporzione train/test all'inizio (30% nel test set mi sembra eccessivo)
+group_num <- rep(c(1:cv), round(n.train/cv))
+random_assign <- sample( c(1:cv),size = n.train - length(group_num)) # ne mancheranno sempre cv o meno quindi non ci serve replace
+split<-sample( append(group_num, random_assign) , size=n.train) #non ha senso questo metodo, capisco avere stessa proporzione ma usiamo una tecnica più flessibile se modifichiamo cv o proporzione train/test all'inizio (30% nel test set mi sembra eccessivo)
 
 #loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 for (j in 1:cv){
-  
   out_norm_cv_2<-normalize_2(transformed.glass.train[split != j  ,-k.train] ,transformed.glass.train[split ==j ,-k.train])
   train_cv<-out_norm_cv_2$train_norm
   test_cv<-out_norm_cv_2$test_norm

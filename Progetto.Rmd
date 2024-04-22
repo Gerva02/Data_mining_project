@@ -153,7 +153,7 @@ glass.train %>%
   geom_bar() +
   labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
 ```
-
+Boxplot...
 
 ```{r}
 glass.train %>% 
@@ -166,7 +166,7 @@ glass.train %>%
   
 ```
 
-
+è violin? sotto metti sopra..
 
 
 ```{r}
@@ -187,7 +187,7 @@ Questo grafico ci riesce a far capire 3 cose :
 2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
 3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
 
-vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) 
+vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
 ```{r}
 glass.train %>%
   filter(Type == "6")

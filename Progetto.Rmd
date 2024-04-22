@@ -61,8 +61,8 @@ Il dataset impiegato, *Glass Classification* è stato scaricato dalla piattaform
 
 La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di seguito.
 
-*RI: l'indice di rifrazione del vetro, una grandezza adimensionale
-*8 elementi chimici, tutti espressi in percentuale in peso all'interno dell'ossido corrispondente.
+* RI: l'indice di rifrazione del vetro, una grandezza adimensionale
+* 8 elementi chimici, tutti espressi in percentuale in peso all'interno dell'ossido corrispondente.
 
   * Na: Sodio
   * Mg: Magnesio
@@ -73,7 +73,7 @@ La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di
   * Ba: Bario
   * Fe: Ferro
   
-*Type : La tipologia di vetro, è la __variabile target__. È suddivisa in 7 classi.
+* Type : La tipologia di vetro, è la __variabile target__. È suddivisa in 7 classi.
 
   1. building_windows_float_processed
   2. building_windows_non_float_processed
@@ -172,13 +172,13 @@ glass.train %>%
 (((vilion o violin?)))
 
 È utile osservare anche il Violin plot delle variabili condizionato alle classi. Ciò permette di vedere una stima della densità non parametrica delle distribuzioni di ogni variabile rispetto alle classi. 
-Tramite questo grafico si riescono infatti a notare 3 principali cose:
-Questo grafico ci riesce a far capire 3 cose : 
-1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
-2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
-3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
+Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:
 
-vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
+* La varianza e la scala degli elementi chimici sono diverse tra di loro: questo porta a effettuare una normalizzazione, utile per esempio quando verrà applicato l'algoritmo K-NN.
+* La varianza per ogni classe per ognuna delle variabili è diversa: questo porta ad escludere l'utilizzo dell'analisi discriminante lineare (LDA), in quanto ipotesi necessaria di essa. 
+* La distribuzione condizionata per ogni elemento chimico non sembra essere quasi mai normale: viene quindi rifiutata anche l'analisi discriminante quadratica (QDA), oltre a LDA. Si conferma inoltre l'asimmetria. 
+
+
 
 
 ```{r}
@@ -194,6 +194,11 @@ glass.train %>%
 #Ma perchè metti To do qua quando c'è il read me (?), io ti consiglio di applicare malanobis
 #che tiene conto di corr lineari
 ```
+
+vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
+
+
+
 
 ```{r}
 glass.train %>%

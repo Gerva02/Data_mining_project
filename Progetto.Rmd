@@ -169,7 +169,7 @@ glass.train %>%
   
 ```
 
-(((vilion o violin?)))
+(((violin o violin?)))
 
 È utile osservare anche il Violin plot delle variabili condizionato alle classi. Ciò permette di vedere una stima della densità non parametrica delle distribuzioni di ogni variabile rispetto alle classi. 
 Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:

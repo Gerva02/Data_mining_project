@@ -368,7 +368,7 @@ abline(h=max(knn.pred.k),col="purple")
 ## KNN Mahalanobis
 
 Un approccio alternativo al classico algoritmo del KNN è quello di utilizzare la distanza di Mahalanobis in alternativa alla più comune distanza euclidea. In questo caso non è necessaria la normalizzazione, dato che la distanza di Mahalanobis tiene conto delle correlazioni e include una trasformazione che già pone le variabili sulla stessa scala.
-Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza.purtroppo la scelta del parametro k ricade su un valore molto elevato e determina una inevitabile influenza sulla previsione da parte delle classi più numerose, causando novetoli problemi in fase di valutazione del modello e utilizzo poi in un futuro per scopi reale. Per questo motivo in seguito si opterà per un valore massimo di k inferiore.
+Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza. Purtroppo la scelta del parametro k ricade su un valore molto elevato e determina una inevitabile influenza sulla previsione da parte delle classi più numerose, causando novetoli problemi in fase di valutazione del modello e utilizzo poi in un futuro per scopi reali. Per questo motivo in seguito si opterà per un valore massimo di k inferiore.
 
 ```{r malanobis}
 
@@ -448,7 +448,7 @@ k.train <-ncol(glass.train)
 labels.train <-glass.train$Type
 knn.kmax<-10
 tree.size.max<- length(pruned.tree.k)-2
-knn.mahalanobis.max<-40
+knn.mahalanobis.max<-20
 mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max+knn.mahalanobis.max),ncol=cv+2))
 mat[1:knn.kmax,1]<-"knn"
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
@@ -506,7 +506,7 @@ best.res
 ```
 
 Si riporta un grafico che rappresenta per ogni metodo l'accuratezza ottenuta con ogni possibile iperparametro.
-È interessante sottolineare come tutti i metodi preferiscano la scelta di un modello in genrale più complesso che rischia di incombere in problemi di overfitting, riscontrando sì un bias inferiore ma trovando molte difficoltà nell'effetturare previsione su dati sconosciuti al modello.
+È interessante sottolineare come tutti i metodi preferiscano la scelta di un modello in generale più complesso che rischia di incombere in problemi di overfitting, riscontrando sì un bias inferiore ma trovando molte difficoltà nell'effetturare previsione su dati sconosciuti al modello.
 
 ```{r grafico confronto}
 res %>%
@@ -533,7 +533,7 @@ k.train <-ncol(transformed.glass.train)
 labels.train <-transformed.glass.train$Type
 knn.kmax<-10
 tree.size.max<- length(pruned.tree.k)-2
-knn.mahalanobis.max<-40
+knn.mahalanobis.max<-20
 mat.2<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max+knn.mahalanobis.max),ncol=cv+2))
 mat.2[1:knn.kmax,1]<-"knn"
 mat.2[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
@@ -604,7 +604,7 @@ Nella fase conclusiva dell'analisi si riprende quindi il test set col 20% delle 
 
 Sono quindi stati esclusi 3 elementi chimici, ovvero le variabili *Ba*, *Fe* e *K*.
 Applicando quindi il metodo si ottiene un buon risultato con un'accuracy pari al **72%**.
-Viene riportata anche la Confusion Matrix. Si nota come il metodo faccia fatica in alcune classi minoritarie, come la terza, probabilmente a causa di poche osservazioni e data la semplicità dell'algoritmo.
+Viene riportata anche la Confusion Matrix. Si nota come il metodo faccia fatica in alcune classi minoritarie, come la terza, probabilmente a causa di poche osservazioni e data la semplicità dell'algoritmo. Tuttavia, questo non risulta essere un problema nelle analisi perché nessun errore ha un peso più alto degli altri, dato che ogni classe ha la stessa importanza, anche in un caso come il nostro con classi leggermente sbilanciate.
 Avendo a disposizione un maggior numero di dati si potrebbero fare analisi più approfondite su ciascuna delle classi e delle vairabili, ovvero sulle varie tipologie di vetro e la loro composizione.
 
 ```{r test knn variabili trasformate}
@@ -624,7 +624,7 @@ mean(transformed.glass.test$Type == knn.pred.transf)
 ```{r Confusion Matrix}
 reference<-transformed.glass.test$Type 
 pred.best<-knn.pred.transf
-confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted value","true value")) .
+confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted value","true value"))
 ```
 
 

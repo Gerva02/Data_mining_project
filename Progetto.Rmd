@@ -468,6 +468,9 @@ In questa fase verrà tuttavia utilizzato un metodo diverso per trovare il model
 Verrà quindi messo da parte il test set e verrà suddiviso in 5 parti il training set in modo tale da poterci applicare la cross-validation e trovare l'iperparametro ottimale.
 Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto equo tra metodi.
 
+Infine è stata calcolata l'accuracy per ognuno dei 3 metodi utilizzando l'iperparametro relativo appena trovato. Sono stati utilizzate tutte e 9 le variabili non trasformate, ovvero quelle del primo gruppo del preprocessing.
+Viene riportata una semplice tabella riassuntiva dei risultati.
+
 ```{r cv}
 cv<-5
 p<-1-1/cv
@@ -535,7 +538,9 @@ best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
 best.res
 ```
 
-loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
+((((loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv))))
+
+
 
 
 ```{r grafico confronto}

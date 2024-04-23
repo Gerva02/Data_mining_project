@@ -643,6 +643,18 @@ res.2 %>%
 
 # Test e conclusioni
 
+Nella fase conclusiva dell'analisi si riprende quindi il test set col 20% delle osservazioni che erano state lasciate da parte. Si va quindi ad applicare il metodo migliore tra tutti quelli analizzati sul test set. Così facendo si otterrà una vera accuratezza del metodo, dato che il test set non ha interferito nella costruzione di esso.
+
+* Il metodo migliore, come visto nei paragrafi precedenti, è quindi il KNN con distanze euclidee, applicato sulle 6 variabili trasformate con Box-Cox e normalizzate.
+
+Sono quindi stati esclusi 3 elementi chimici, ovvero le variabili *Ba*, *Fe* e *K*.
+Applicando quindi il metodo si ottiene un buon risultato con un'accuracy pari al **72%**.
+
+
+Gli altri metodi applicati, ovvero gli alberi decisionali e il KNN con distanze di Mahalanobis hanno portato a risultati peggiori.
+La regressione logistica multiclasse è stata invece esclusa a priori perchè dava risultati ancora peggiori. 
+LDA e QDA sono stati invece esclusi a causa del mancato rispetto delle ipotesi di normalità e di varianza delle classi.
+
 
 
 ```{r test knn variabili trasformate}

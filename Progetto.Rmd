@@ -636,6 +636,9 @@ LDA e QDA sono stati invece esclusi a causa del mancato rispetto delle ipotesi d
 
 # Bibliografia
 
+[UC Irvine Glass Identification data set](https://archive.ics.uci.edu/dataset/42/glass+identification) 
+
+[Pilkington Fonte Informazioni su Vetro](https://www.pilkington.com/it-it/it/architetti/il-vetro/aspetti-chimici-del-vetro#:~:text=Composizione%20Chimica%20del%20Vetro&text=La%20struttura%20cristallina%20del%20silicio,ed%20ha%20una%20carica%20negativa.)
 
 
 

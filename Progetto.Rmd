@@ -396,8 +396,7 @@ abline(h=max(knn.pred.k),col="purple")
 ## KNN Mahalanobis
 
 Un approccio alternativo al classico algoritmo del KNN è quello di utilizzare le distanze di Mahalanobis al posto delle distanze euclidee come metodo di misura della distanza. In questo caso non è neanche necessaria la normalizzazione, dato che la distanza di Mahalanobis tiene conto delle correlazioni e include una trasformazione che già pone le variabili sulla stessa scala.
-Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuracy.
-
+Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza.
 
 ```{r malanobis}
 
@@ -454,8 +453,20 @@ abline(h=max(knn.pred.k),col="purple")
 
 
 
-##Confronto metodi
+## Confronto metodi
 
+In questo paragrafo si procede quindi con il confronto tra i diversi metodi di classificazione.
+Nella fase precedente sono stati selezionati 3 diversi metodi:
+
+* Alberi decisionali
+* KNN
+* KNN con distanze di Mahalanobis
+
+È stata effettuata anche una regressione logistica multiclasse, ma è stata esclusa a causa di scarsi risultati (circa 0,40 di accuracy).
+
+In questa fase verrà tuttavia utilizzato un metodo diverso per trovare il modello migliore, ovvero la tecnica della **cross-validation**. Tramite questo metodo più robusto si riescono a trovare iperparametri migliori sia per gli alberi decisionali che per il KNN.
+Verrà quindi messo da parte il test set e verrà suddiviso in 5 parti il training set in modo tale da poterci applicare la cross-validation e trovare l'iperparametro ottimale.
+Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto equo tra metodi.
 
 ```{r cv}
 cv<-5

@@ -530,13 +530,8 @@ best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
 best.res
 ```
 
-
-
 Si riporta un grafico che rappresenta per ogni metodo l'accuratezza ottenuta con ogni possibile iperparametro.
-
-(((bisogna far capire che gli iperparametri qua non sono sovraponibili per 2 ragioni 
-più si va a destra per il knn meno il modello è variabile (è il contrario per gli alberi)
-non stanno misurando la stessa cosa)))
+È utile far notare l'interpretazione opposta del valore dell'iperparametro nel KNN e negli alberi decisionali. Nel KNN infatti più il parametro è grande e più il modello è semplice, avendo quindi un maggiore bias e una minore varianza. Al contrario, negli alberi decisionali si ha un modello più complesso con l'aumentare del parametro, con minore bias e maggiore varianza.
 
 
 ```{r grafico confronto}

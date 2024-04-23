@@ -375,8 +375,8 @@ mean(tree.pred == glass.test$Type) #VEDERE DOVE INSERIRE QUESTO VALORE PERCHE SO
 
 ```{r knn 1}
 Kmax<-20
-out<-normalize(glass.train[,-k],glass.test[,-k])
-set.seed(47)
+out<-normalize(glass.train[,-10],glass.test[,-10])
+set.seed(101)
 knn.pred.k<-rep(0,Kmax)
 X_train<- out$train_norm
 labels<-glass.train$Type 
@@ -390,6 +390,9 @@ r[which.max(knn.pred.k)]<-"red"
 plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
 abline(h=max(knn.pred.k),col="purple")
 ```
+
+
+
 #dealing with multicollinearity (vedremo se metterla...)
 
 
@@ -412,31 +415,40 @@ find_mode <- function(x) {
 
 predict_label <- function(v, train, mat, k, train_lab) {
   dists <- apply(train, MARGIN = 1, function(x) mahalanobis_dist(x, v, mat))
-  print(class(dists))
   check <- data.frame("dist"=dists,"lab"=train_lab)
-  check <- as_tibble(check)
-  print(check)
-  check_ord <-  check  %>% slice_min(dist, n = 5)
-  print(check_ord)
-  return(find_mode(as.factor(check_ord$lab)))
+  check <- as.tibble(check)
+  check_ord <-  check  %>% slice_min(dist, n = k)
+  return(find_mode(check_ord$lab))
 }
 
 # si implementa una funzione per l'applicazione del metodo knn tramite distanza di mahalanobis
 knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
   x_matrix_inv <- solve(cor(train))
   pred <- apply(valid, MARGIN = 1, function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
-  out <- mean(as.factor(pred) == valid_lab)
+  out <- mean(pred == valid_lab)
   return(out)
 }
 
-
-knn_mahalanobis(glass.train[,1:9], glass.test[,1:9], glass.train$Type, glass.test$Type, k=5) 
-#NON VA
 ```
-questo chunk è anche buggato
 
-
-
+```{r malanobis scelta k.best}
+Kmax<-40
+#non si normalizza perchè fa già mahalanobis????
+set.seed(47)
+knn.pred.k<-rep(0,Kmax)
+X_train<-glass.train[,-10]
+labels.train<-glass.train$Type 
+labels.test<-glass.test$Type
+X_test<-glass.test[,-10]
+for (i in 1:Kmax){
+  knn.pred.k[i]<-knn_mahalanobis(X_train, X_test, labels.train, labels.test, k=i) 
+}
+r<-rep("black",Kmax)
+r[which.max(knn.pred.k)]<-"red"
+plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
+abline(h=max(knn.pred.k),col="purple")
+#teniamo senza normalizzare
+```
 
 
 
@@ -451,11 +463,15 @@ k.train <-ncol(glass.train)
 labels.train <-glass.train$Type
 knn.kmax<-10
 tree.size.max<- length(pruned.tree.k)-2
-mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max),ncol=cv+2))
+knn.mahalanobis.max<-40
+mat<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max+knn.mahalanobis.max),ncol=cv+2))
 mat[1:knn.kmax,1]<-"knn"
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
+mat[(knn.kmax+tree.size.max+1):(knn.kmax+tree.size.max+knn.mahalanobis.max),1]<-"knn.maha"
 mat[1:knn.kmax,2]<-1:knn.kmax
 mat[(knn.kmax+1):(knn.kmax+tree.size.max),2]<- pruned.tree.k[2:(length(pruned.tree.k)-1)]
+mat[(knn.kmax+tree.size.max+1):(knn.kmax+tree.size.max+knn.mahalanobis.max),2]<- 1:knn.mahalanobis.max
+
 
 set.seed(47)
 group <- rep(c(1:cv), round(n.train/cv))
@@ -485,14 +501,24 @@ for (j in 1:cv){
   for (l in 1:tree.size.max){
     pruned.tree <-prune.tree(tree.glass.cv ,method = "misclass", k = pruned.tree.k[l+1] )
     tree.pred <-predict(pruned.tree , test.cv.tree[,-k.train] , type = "class")
-    mat[knn.kmax+l,j+2]<- mean(tree.pred == labels_train[split ==j])
+    mat[knn.kmax+l,j+2]<- mean(tree.pred == labels.train[split ==j])
   }
+  
+  train.maha <- glass.train[split != j,] 
+  test.maha <-glass.train[split ==j,]
+  #metodo knn maha
+  for (h in 1:knn.mahalanobis.max){
+    mat[knn.kmax+tree.size.max+h,j+2]<- knn_mahalanobis(train.maha[,-k.train], test.maha[,-k.train], train.maha$Type, test.maha$Type, k=h)
+  }
+  
+  
 }
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) 
 colnames(res)<-c("metodo","hyperparameter","accuracy")
 res<-as.tibble(res)
 best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
-      res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
+                res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)),
+                res%>%filter(metodo=="knn.maha")%>%filter(accuracy==max(accuracy)))
 best.res
 ```
 
@@ -506,7 +532,7 @@ res %>%
   geom_point()+
   facet_grid(~metodo) +
   labs(title= "Variazione di Accuracy Rispetto a Iperparametri")
- 
+#dal grafico temo k=1 di mahalanobis sia da escludere....
 ```
 
 bisogna far capire che gli iperparametri qua non sono sovraponibili per 2 ragioni 
@@ -523,11 +549,14 @@ k.train <-ncol(transformed.glass.train)
 labels.train <-transformed.glass.train$Type
 knn.kmax<-10
 tree.size.max<- length(pruned.tree.k)-2
-mat.2<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max),ncol=cv+2))
+knn.mahalanobis.max<-40
+mat.2<-as.data.frame(matrix(NA,nrow=(knn.kmax+tree.size.max+knn.mahalanobis.max),ncol=cv+2))
 mat.2[1:knn.kmax,1]<-"knn"
 mat.2[(knn.kmax+1):(knn.kmax+tree.size.max),1]<-"tree"
+mat.2[(knn.kmax+tree.size.max+1):(knn.kmax+tree.size.max+knn.mahalanobis.max),1]<-"knn.maha"
 mat.2[1:knn.kmax,2]<-1:knn.kmax
 mat.2[(knn.kmax+1):(knn.kmax+tree.size.max),2]<- pruned.tree.k[2:(length(pruned.tree.k)-1)]
+mat.2[(knn.kmax+tree.size.max+1):(knn.kmax+tree.size.max+knn.mahalanobis.max),2]<- 1:knn.mahalanobis.max
 
 set.seed(47)
 group <- rep(c(1:cv), round(n.train/cv))
@@ -557,12 +586,20 @@ for (j in 1:cv){
     tree.pred <-predict(pruned.tree , test.cv.tree[,-k.train] , type = "class")
     mat.2[knn.kmax+l,j+2]<- mean(tree.pred == labels.train[split ==j])
   }
+  train.maha <- transformed.glass.train[split != j,] 
+  test.maha <-transformed.glass.train[split ==j,]
+  #metodo knn maha
+  for (h in 1:knn.mahalanobis.max){
+    mat.2[knn.kmax+tree.size.max+h,j+2]<- knn_mahalanobis(train.maha[,-k.train], test.maha[,-k.train], train.maha$Type, test.maha$Type, k=h)
+  }
+  
 }
 res.2<-cbind(mat.2[,c(1,2)],apply(mat.2[,3:j+2],MARGIN=1,mean)) 
 colnames(res.2)<-c("metodo","hyperparameter","accuracy")
 res.2<-as.tibble(res.2)
 best.res.2<-rbind(res.2%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
-      res.2%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)))
+                  res.2%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)),
+                  res.2%>%filter(metodo=="knn.maha")%>%filter(accuracy==max(accuracy)))
 best.res.2
 
 ```
@@ -602,7 +639,5 @@ reference<-transformed.glass.test$Type #VEDETE SE INSERIRE, PER ME CI STA
 pred.best<-knn.pred.transf
 confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted values","true values")) #scegliete se value o values...
 ```
-
-
 
 

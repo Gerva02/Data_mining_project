@@ -284,8 +284,6 @@ pvalue.shapiro["Ca", "6" ] <- pvalue.shapiro["K", "6" ] <- pvalue.shapiro["Fe", 
 round(pvalue.shapiro, 5)
 ```
 
-L'ultimo step della fase di Preprocessing è la normalizzazione. Sono di seguito implementate delle funzioni che vanno a normalizzare tutti i nostri dati. Ciò è essenziale per poter successivamente applicare l'algoritmo del  K-NN che utilizza le distanze euclidee.
-
 ```{r shapiro test dati trasformati}
 #qua si crea tabella pvalues
 pvalue.shapiro.2 <- matrix(0, nrow = (dim(transformed.glass.train)[2]-1), ncol = 6)
@@ -304,6 +302,8 @@ for (i in colnames(transformed.glass.train)[-7]){
 
 round(pvalue.shapiro.2, 5)
 ```
+
+L'ultimo step della fase di Preprocessing è la normalizzazione. Sono di seguito implementate delle funzioni che vanno a normalizzare tutti i nostri dati. Ciò è essenziale per poter successivamente applicare l'algoritmo del  K-NN che utilizza le distanze euclidee.
 
 
 ```{r normalizzazione}
@@ -336,10 +336,11 @@ normalize<-function(train,test){
 
 # Metodi di classificazione
 
-
-
-
 ## Alberi
+
+Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al training set in analisi.
+Viene riportato in figura l'albero completo T0 con tutti gli split presenti.
+
 ```{r alberi}
 #qua ho fatto un albero e sembra buono
 set.seed(47)
@@ -351,11 +352,12 @@ mean(tree.pred == glass.test$Type)
 pruned.tree.k <-prune.tree(tree.glass  ,method="misclass")$k
 
 ```
-vediamo split inutili 
+
+(((vediamo split inutili 
 
 vediamo che con 11 leaf node è quello che predice meglio
 
-5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test
+5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test)))
 
 
 ```{r alberi da sistemare}

@@ -174,9 +174,9 @@ glass.train %>%
 È utile osservare anche il Violin plot delle variabili condizionato alle classi. Ciò permette di vedere una stima della densità non parametrica delle distribuzioni di ogni variabile rispetto alle classi. 
 Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:
 
-* La varianza e la scala degli elementi chimici sono diverse tra di loro: questo porterà a effettuare una normalizzazione, utile per esempio quando verrà applicato l'algoritmo K-NN.
+* La varianza e la scala delle variabili sono diverse tra di loro: questo porterà a effettuare una normalizzazione, utile per esempio quando verrà applicato l'algoritmo K-NN.
 * La varianza per ogni classe per ognuna delle variabili è diversa: questo porta ad escludere l'utilizzo dell'analisi discriminante lineare (LDA), in quanto ipotesi necessaria di essa. 
-* La distribuzione condizionata per ogni elemento chimico non sembra essere quasi mai normale: viene quindi rifiutata anche l'analisi discriminante quadratica (QDA), oltre a LDA. Si conferma inoltre l'asimmetria. 
+* La distribuzione condizionata per ogni variabili non sembra essere quasi mai normale: viene quindi rifiutata anche l'analisi discriminante quadratica (QDA), oltre a LDA. Si conferma inoltre l'asimmetria. 
 
 
 ```{r}
@@ -251,8 +251,15 @@ transformed.glass.train%>%
 
 ```
 
+Si procede con lo studio della normalità tramite appositi test.
+Viene utilizzato il Test di Shapiro-Wilk chge verifica tramite con l'ipotesi nulla la normalità del campione.
+Sono di seguito riportate due tabelle, con la suddivisione in gruppi di cui sopra:
 
-neanche niente male per alcune di queste
+* Nella prima ci sono i p-value del test per ognuna delle 9 variabili iniziali non trasformate: è imputato un valore NA per i 3 elementi chimici con tutti valori pari a zero nella classe 6.
+* 
+
+
+suddivsione
 
 ```{r shapiro test}
 #impostazione tabella pvalues

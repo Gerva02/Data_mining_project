@@ -220,7 +220,12 @@ glass.train %>%
 
 In una seconda fase del preprocessing si procede con delle trasformazioni opportune delle variabili.
 La trasformazione applicata è stata quella di Box-Cox dato che si tratta di una trasformazione molto completa e utile che include sia il logaritmo che le trasformazioni potenza, in base ad un parametro *lambda*.
-Si è deciso di non trasformare le 3 variabili *Ba*, *Fe* e *K* analizzate precedentemente. Queste presentavano valori non solo asimmetrici, ma molto spostati verso lo zero, rendendo quindi ininfluenti e inutili le trasformazioni. Nella fase successiva si procederà quindi ad escluderle totalmente in alcune analisi.
+Si è deciso di non trasformare le 3 variabili *Ba*, *Fe* e *K* analizzate precedentemente. Queste presentavano valori non solo asimmetrici, ma molto spostati verso lo zero, rendendo quindi ininfluenti e inutili le trasformazioni. 
+
+Il dataset è stato quindi diviso in due gruppi:
+
+* Il primo contiene tutte le 9 variabili non trasformate
+* Il secondo ha invece le 6 variabili trasformate, con l'esclusione delle 3 sopraccitate.
 
 Di seguito vengono riportati i grafici della stima della densità non parametrica delle distribuzioni delle nuove 6 variabili trasformate, rispetto alle classi. Il risultato è buono in quanto tutte le variabili sembrano avere distribuzione più normale.
 
@@ -253,13 +258,13 @@ transformed.glass.train%>%
 
 Si procede con lo studio della normalità tramite appositi test.
 Viene utilizzato il Test di Shapiro-Wilk chge verifica tramite con l'ipotesi nulla la normalità del campione.
-Sono di seguito riportate due tabelle, con la suddivisione in gruppi di cui sopra:
+Sono di seguito riportate le due tabelle per ognuno dei due gruppi:
 
-* Nella prima ci sono i p-value del test per ognuna delle 9 variabili iniziali non trasformate: è imputato un valore NA per i 3 elementi chimici con tutti valori pari a zero nella classe 6.
-* 
+* Nella prima ci sono i p-value del test per ognuna delle 9 variabili iniziali non trasformate, rispetto ad ogni classe: è imputato un valore NA per i 3 elementi chimici con tutti valori pari a zero nella classe 6.
+* Nella seconda sono presenti i p-value del test solamente delle 6 variabili trasformate.
 
+In entrambi i casi si osserva che i p-value sono quasi tutti molto "bassi" facendo rifiutare l'ipotesi nulla di normalità. 
 
-suddivsione
 
 ```{r shapiro test}
 #impostazione tabella pvalues

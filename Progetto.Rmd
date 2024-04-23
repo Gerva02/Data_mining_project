@@ -371,41 +371,44 @@ abline(h=max(knn.pred.k),col="purple")
 
 
 
-```{r}
-# 
-# #si prova con mahalanobis distance
-# 
-# mahalanobis_dist <- function(x, mean_vec, sigma_inv) {
-#   diff_vec <- t(t(x) - mean_vec)
-#   out <- sqrt(rowSums((diff_vec %*% sigma_inv) * diff_vec))
-#   return(out)
-# }
-# 
-# find_mode <- function(x) {
-#   u <- unique(x)
-#   tab <- tabulate(match(x, u))
-#   u[tab == max(tab)]
-# }
-# 
-# predict_label <- function(v, train, mat, k, train_lab) {
-#   dists <- apply(train, MARGIN = 1, function(x) mahalanobis_dist(x, v, mat))
-#   check <- data.frame("dist"=dists,"lab"=train_lab)
-#   check <- as.tibble(check)
-#   check_ord <- top_n(check, k, wt = dist)
-#   return(find_mode(as.factor(check_ord$lab)))
-# }
-# 
-# # si implementa una funzione per l'applicazione del metodo knn tramite distanza di mahalanobis
-# knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
-#   x_matrix_inv <- solve(cor(train))
-#   pred <- apply(valid, MARGIN = 1, function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
-#   out <- mean(as.factor(pred) == valid_lab)
-#   return(out)
-# }
-# 
-# 
-# 
-# knn_mahalanobis(glass.train[,1:9], glass.test[,1:9], glass.train$Type, glass.test$Type, k=5) #NON VA
+```{r malanobis}
+
+#si prova con mahalanobis distance
+
+mahalanobis_dist <- function(x, mean_vec, sigma_inv) {
+  diff_vec <- t(t(x) - mean_vec)
+  out <- sqrt(as.numeric(t(diff_vec) %*% sigma_inv %*% diff_vec ))
+  return(out)
+}
+
+find_mode <- function(x) {
+  u <- unique(x)
+  tab <- tabulate(match(x, u))
+  u[tab == max(tab)]
+}
+
+predict_label <- function(v, train, mat, k, train_lab) {
+  dists <- apply(train, MARGIN = 1, function(x) mahalanobis_dist(x, v, mat))
+  print(class(dists))
+  check <- data.frame("dist"=dists,"lab"=train_lab)
+  check <- as_tibble(check)
+  print(check)
+  check_ord <-  check  %>% slice_min(dist, n = 5)
+  print(check_ord)
+  return(find_mode(as.factor(check_ord$lab)))
+}
+
+# si implementa una funzione per l'applicazione del metodo knn tramite distanza di mahalanobis
+knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
+  x_matrix_inv <- solve(cor(train))
+  pred <- apply(valid, MARGIN = 1, function(x) predict_label(x, train, x_matrix_inv, k, train_lab))
+  out <- mean(as.factor(pred) == valid_lab)
+  return(out)
+}
+
+
+knn_mahalanobis(glass.train[,1:9], glass.test[,1:9], glass.train$Type, glass.test$Type, k=5) 
+#NON VA
 ```
 questo chunk è anche buggato
 

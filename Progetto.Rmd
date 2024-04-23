@@ -61,8 +61,8 @@ Il dataset impiegato, *Glass Classification* è stato scaricato dalla piattaform
 
 La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di seguito.
 
-*RI: l'indice di rifrazione del vetro, una grandezza adimensionale
-*8 elementi chimici, tutti espressi in percentuale in peso all'interno dell'ossido corrispondente.
+* RI: l'indice di rifrazione del vetro, una grandezza adimensionale
+* 8 elementi chimici, tutti espressi in percentuale in peso all'interno dell'ossido corrispondente.
 
   * Na: Sodio
   * Mg: Magnesio
@@ -73,7 +73,7 @@ La matrice dei dati è composta da 214 osservazioni e 10 variabili, riportate di
   * Ba: Bario
   * Fe: Ferro
   
-*Type : La tipologia di vetro, è la __variabile target__. È suddivisa in 7 classi.
+* Type : La tipologia di vetro, è la __variabile target__. È suddivisa in 7 classi.
 
   1. building_windows_float_processed
   2. building_windows_non_float_processed
@@ -90,9 +90,8 @@ Sono state effettuate analisi per il controllo di valori mancanti ed è stato ri
 
 
 
-# Analisi esplorativa
+# Preprocessing e Analisi esplorativa 
 
-# Preprocessing
 ```{r import e inizio }
 path <- "glass.csv"
 glass <- tibble(read.table(path , sep = "," , header = T))
@@ -101,7 +100,7 @@ n<-nrow(glass)
 k<-ncol(glass)
 ```
 
-In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 85% casuale dei nostri dati, mentre il test il restante 15%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
+In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 80% casuale dei nostri dati, mentre il test il restante 20%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
 
 ```{r division dataset}
 #questa è una funzione che divide tra test e train (magari ci serve nel CV)
@@ -134,6 +133,7 @@ ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
   labs(title = "Plot di Correlazioni Lineari") #FAREI I GRAFICI SU "Glass" intero....(e metterei la divisione train/test dopo tutti i grafici)
 ```
+
 Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
 Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.
@@ -154,7 +154,9 @@ glass.train %>%
   geom_bar() +
   labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
 ```
-Vengono di seguito riportati i boxplot di ciascuna delle variabili, senza aver effettuato nessun tipo di trasformazione. Si nota in alcune una distribuzione abbastanza sbilanciata, con la presenza di un'asimmetria. Altre variabili sembrano invece abbastanza simmetriche e senza la presenza di alcun outlier.
+
+Vengono di seguito riportati i boxplot di ciascuna delle variabili, senza aver effettuato nessun tipo di trasformazione. Si nota una distribuzione abbastanza sbilanciata, con la presenza di una forte asimmetria nelle variabili *Ba*, *Fe* e *K*. Le restanti variabili sembrano invece più simmetriche e senza la presenza di outlier. 
+Questi valori potrebbero essere problematici al fine delle analisi e verranno ripresi e trattati successivamente.
 
 ```{r}
 glass.train %>% 
@@ -166,16 +168,15 @@ glass.train %>%
   labs(title = "Box Plot con Tutte le Variabili")
   
 ```
+
 (((vilion o violin?)))
 
-È utile osservare anche il Vilion plot delle variabili condizionato alle classi.
-Tramite questo grafico si riescono infatti a notare 3 cose:
-Questo grafico ci riesce a far capire 3 cose : 
-1) la varianza e la scale dei vari materiali è diversa tra loro  ( ci porta a fare normalizzazione per knn)
-2) la varianza tra diversi type per uno stesso elemento chimico è diversa ( LDA rifiutata )
-3) la distribuzione condizionata per ogni elemento chimico (non è quasi mai normale) (Analisi discriminante rifiutata (LDA e QDA)) è estremamente assimetrica 
+È utile osservare anche il Violin plot delle variabili condizionato alle classi. Ciò permette di vedere una stima della densità non parametrica delle distribuzioni di ogni variabile rispetto alle classi. 
+Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:
 
-vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
+* La varianza e la scala degli elementi chimici sono diverse tra di loro: questo porta a effettuare una normalizzazione, utile per esempio quando verrà applicato l'algoritmo K-NN.
+* La varianza per ogni classe per ognuna delle variabili è diversa: questo porta ad escludere l'utilizzo dell'analisi discriminante lineare (LDA), in quanto ipotesi necessaria di essa. 
+* La distribuzione condizionata per ogni elemento chimico non sembra essere quasi mai normale: viene quindi rifiutata anche l'analisi discriminante quadratica (QDA), oltre a LDA. Si conferma inoltre l'asimmetria. 
 
 
 ```{r}
@@ -191,6 +192,11 @@ glass.train %>%
 #Ma perchè metti To do qua quando c'è il read me (?), io ti consiglio di applicare malanobis
 #che tiene conto di corr lineari
 ```
+
+vediamo inoltre che per type = 6 BA FE K non variano assolutamente ( magari fare un altro grafico) (sono tutti 0, potremo toglierla però ritengo che semplicemente possono essere elementi chimici non presenti in quel vetro)
+
+
+
 
 ```{r}
 glass.train %>%

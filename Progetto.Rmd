@@ -338,6 +338,9 @@ normalize<-function(train,test){
 
 Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al dataset in analisi senza nessun problema.
 Viene riportato in figura l'albero completo T0 con tutti gli split presenti.
+Si notano diversi split che sembrano poco utili alla fine dell'albero. Questi splittano infatti nella stessa classe e potrebbero essere in futuro potati tramite tencniche di pruning.
+La variabile che sembra essere più importante è quella dell'elemento chimico del magnesio, in quanto primo split dell'albero (Mg<2.695).
+
 Questo albero fornisce un'accuratezza iniziale del 60.47 % sul test set e conferma quindi essere un buon modello da poter riutilizzare successivamente.
 
 ```{r alberi}
@@ -352,16 +355,6 @@ pruned.tree.k <-prune.tree(tree.glass  ,method="misclass")$k
 
 ```
 
-(((vediamo split inutili 
-
-vediamo che con 11 leaf node è quello che predice meglio
-
-5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test)))
-
-
-```{r alberi da sistemare}
-mean(tree.pred == glass.test$Type) #VEDERE DOVE INSERIRE QUESTO VALORE PERCHE SOPRA VIENE VISUALIZZATO SOLO IL PLOT...???
-```
 
 
 ## KNN 
@@ -642,7 +635,7 @@ res.2 %>%
 
 Nella fase conclusiva dell'analisi si riprende quindi il test set col 20% delle osservazioni che erano state lasciate da parte. Si va quindi ad applicare il metodo migliore tra tutti quelli analizzati sul test set. Così facendo si otterrà una vera accuratezza del metodo, dato che il test set non ha interferito nella costruzione di esso.
 
-* Il metodo migliore, come visto nei paragrafi precedenti, è quindi il KNN con distanze euclidee, applicato sulle 6 variabili trasformate con Box-Cox e normalizzate.
+* Il metodo migliore, come visto nei paragrafi precedenti, è quindi il KNN con distanze euclidee, applicato sulle 6 variabili trasformate con Box-Cox e normalizzate: il k ottimale è k=3.
 
 Sono quindi stati esclusi 3 elementi chimici, ovvero le variabili *Ba*, *Fe* e *K*.
 Applicando quindi il metodo si ottiene un buon risultato con un'accuracy pari al **72%**.

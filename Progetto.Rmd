@@ -219,7 +219,7 @@ glass.train %>%
 ## Trasformazione variabili
 
 In una seconda fase del preprocessing si procede con delle trasformazioni opportune delle variabili.
-La trasformazione applicata è stata quella di Box-Cox dato che si tratta di una trasformazione molto completa e utile che include sia il logaritmo che le trasformazioni potenza, in base ad un parametro *lambda*.
+La trasformazione applicata è stata quella di Box-Cox dato che si tratta di una trasformazione molto completa e utile che include sia il logaritmo che le trasformazioni potenza, in base ad un parametro $\lambda$.
 Si è deciso di non trasformare le 3 variabili *Ba*, *Fe* e *K* analizzate precedentemente. Queste presentavano valori non solo asimmetrici, ma molto spostati verso lo zero, rendendo quindi ininfluenti e inutili le trasformazioni. 
 
 Il dataset è stato quindi diviso in due gruppi:

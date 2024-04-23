@@ -126,7 +126,7 @@ ggcorrplot(cor(glass.train%>%
   labs(title = "Plot di Correlazioni Lineari") 
 ```
 
-Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
+Successivamente è visualizzato l'istogramma relativo alle frequenze relative delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
 Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.
 Questa situazione si identifica nel problema di classi sbilanciate, ovvero quando nel set di dati di addestramento (training set) i dati non ugualmente distribuiti tra le classi, causando verosimilmente minor accuratezza nel modello.
@@ -368,7 +368,7 @@ abline(h=max(knn.pred.k),col="purple")
 ## KNN Mahalanobis
 
 Un approccio alternativo al classico algoritmo del KNN è quello di utilizzare la distanza di Mahalanobis in alternativa alla più comune distanza euclidea. In questo caso non è necessaria la normalizzazione, dato che la distanza di Mahalanobis tiene conto delle correlazioni e include una trasformazione che già pone le variabili sulla stessa scala.
-Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza. Purtroppo la scelta del parametro k ricade su un valore molto elevato e determina una inevitabile influenza sulla previsione da parte delle classi più numerose, causando notevoli problemi in fase di valutazione del modello e utilizzo poi in un futuro per scopi reale. Per questo motivo in seguito si opterà per un valore massimo di k inferiore.
+Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza. 
 
 ```{r malanobis}
 
@@ -440,7 +440,7 @@ Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto eq
 
 Infine è stata calcolata l'accuracy per ognuno dei 3 metodi utilizzando l'iperparametro relativo appena trovato. Sono stati utilizzate tutte e 9 le variabili non trasformate, ovvero quelle del primo gruppo del preprocessing.
 Viene riportata una semplice tabella riassuntiva dei risultati.
-Il metodo migliore sembra per ora essere il KNN con distanze euclidee con un'accuracy di 0.64, ma anche gli altri metodi danno buoni risultati intorno al 60%.
+Il metodo migliore sembra per ora essere il KNN con distanze euclidee con un'accuracy di 0.66, ma anche gli altri metodi danno buoni risultati intorno al 60%.
 
 ```{r cv}
 cv<-5
@@ -525,7 +525,7 @@ Per ultimare i confronti si procede con l'applicazione dei metodi anche nel seco
 Il procedimento è analogo a quanto visto nel capitolo precedente: tramite cross validation sul training, sempre con lo stesso split, vengono trovati i 3 diversi iperparametri relativi ai 3 metodi, per poi calcolarne l'accuracy.
 Anche in questo caso vengono riportati una tabella riassuntiva ed il grafico con tutti possibili iperparametri e le relative accuracy.
 
-I risultati ottenuti sono deludenti per il KNN con Mahalanobis (accuracy pari a 0.38), mentre sono molto buoni per quanto riguarda il KNN normale (accuracy pari a 0.72).
+I risultati ottenuti sono deludenti per il KNN con Mahalanobis (accuracy pari a 0.45), mentre sono molto buoni per quanto riguarda il KNN normale (accuracy pari a 0.73).
 
 ```{r cv transformed variables}
 cv<-5
@@ -602,7 +602,7 @@ res.2 %>%
 
 Nella fase conclusiva dell'analisi si riprende quindi il test set col 20% delle osservazioni che erano state lasciate da parte. Si va quindi ad applicare il metodo migliore tra tutti quelli analizzati sul test set. Così facendo si otterrà una vera accuratezza del metodo, dato che il test set non ha interferito nella costruzione di esso.
 
-* Il metodo migliore, come visto nei paragrafi precedenti, è quindi il KNN con distanze euclidee, applicato sulle 6 variabili trasformate con Box-Cox e normalizzate: il k ottimale è k=3.
+* Il metodo migliore, come visto nei paragrafi precedenti, è quindi il KNN con distanze euclidee, applicato sulle 6 variabili trasformate con Box-Cox e normalizzate: il k ottimale è k=2.
 
 Sono quindi stati esclusi 3 elementi chimici, ovvero le variabili *Ba*, *Fe* e *K*.
 Applicando quindi il metodo si ottiene un buon risultato con un'accuracy pari al **72%**.

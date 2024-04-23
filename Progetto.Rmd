@@ -338,7 +338,7 @@ normalize<-function(train,test){
 
 Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al dataset in analisi senza nessun problema.
 Viene riportato in figura l'albero completo T0 con tutti gli split presenti.
-Si notano diversi split che sembrano poco utili alla fine dell'albero. Questi splittano infatti nella stessa classe e potrebbero essere in futuro potati tramite tencniche di pruning.
+Si notano diversi split che sembrano poco utili per la classificazione alla fine dell'albero. Questi splittano infatti nella stessa classe e potrebbero essere in futuro potati tramite tencniche di pruning.
 La variabile che sembra essere più importante è quella dell'elemento chimico del magnesio, in quanto primo split dell'albero (Mg<2.695).
 
 Questo albero fornisce un'accuratezza iniziale del 60.47 % sul test set e conferma quindi essere un buon modello da poter riutilizzare successivamente.
@@ -461,7 +461,7 @@ Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto eq
 
 Infine è stata calcolata l'accuracy per ognuno dei 3 metodi utilizzando l'iperparametro relativo appena trovato. Sono stati utilizzate tutte e 9 le variabili non trasformate, ovvero quelle del primo gruppo del preprocessing.
 Viene riportata una semplice tabella riassuntiva dei risultati.
-Il metodo migliore sembra per ora essere il KNN con distanze euclidee con un'accuracy di 0.64.
+Il metodo migliore sembra per ora essere il KNN con distanze euclidee con un'accuracy di 0.64, ma anche gli altri metodi danno buoni risultati intorno al 60%.
 
 ```{r cv}
 cv<-5
@@ -530,7 +530,7 @@ best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
 best.res
 ```
 
-((((loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv))))
+
 
 Si riporta un grafico che rappresenta per ogni metodo l'accuratezza ottenuta con ogni possibile iperparametro.
 

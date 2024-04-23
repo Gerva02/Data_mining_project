@@ -307,7 +307,7 @@ round(pvalue.shapiro.2, 5)
 ```
 #Normalizzazione
 
-```{r}
+```{r normalizzazione}
 #v è un vettore colonna il primo valore è il minimo il secondo il massimo e il resto solo i valori effettivi delle colonne (Fe, Ba, etc)
 
 #funzione che prende vettore, toglie il primo numero, e lo divide da secondo - primo 
@@ -359,7 +359,7 @@ vediamo che con 11 leaf node è quello che predice meglio
 5% improvement , but we can see that we have very little data for example class 6 has only 1 data point in test
 
 
-```{r alberi}
+```{r alberi da sistemare}
 mean(tree.pred == glass.test$Type) #VEDERE DOVE INSERIRE QUESTO VALORE PERCHE SOPRA VIENE VISUALIZZATO SOLO IL PLOT...???
 ```
 
@@ -416,7 +416,7 @@ find_mode <- function(x) {
 predict_label <- function(v, train, mat, k, train_lab) {
   dists <- apply(train, MARGIN = 1, function(x) mahalanobis_dist(x, v, mat))
   check <- data.frame("dist"=dists,"lab"=train_lab)
-  check <- as.tibble(check)
+  check <- as_tibble(check)
   check_ord <-  check  %>% slice_min(dist, n = k)
   return(find_mode(check_ord$lab))
 }
@@ -455,7 +455,7 @@ abline(h=max(knn.pred.k),col="purple")
 ##Confronto metodi
 
 
-```{r}
+```{r cv}
 cv<-5
 p<-1-1/cv
 n.train<-nrow(glass.train)
@@ -515,7 +515,7 @@ for (j in 1:cv){
 }
 res<-cbind(mat[,c(1,2)],apply(mat[,3:j+2],MARGIN=1,mean)) 
 colnames(res)<-c("metodo","hyperparameter","accuracy")
-res<-as.tibble(res)
+res<-as_tibble(res)
 best.res<-rbind(res%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
                 res%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)),
                 res%>%filter(metodo=="knn.maha")%>%filter(accuracy==max(accuracy)))
@@ -596,7 +596,7 @@ for (j in 1:cv){
 }
 res.2<-cbind(mat.2[,c(1,2)],apply(mat.2[,3:j+2],MARGIN=1,mean)) 
 colnames(res.2)<-c("metodo","hyperparameter","accuracy")
-res.2<-as.tibble(res.2)
+res.2<-as_tibble(res.2)
 best.res.2<-rbind(res.2%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)),
                   res.2%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)),
                   res.2%>%filter(metodo=="knn.maha")%>%filter(accuracy==max(accuracy)))

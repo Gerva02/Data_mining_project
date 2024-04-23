@@ -338,8 +338,9 @@ normalize<-function(train,test){
 
 ## Alberi
 
-Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al training set in analisi.
+Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al dataset in analisi senza nessun problema.
 Viene riportato in figura l'albero completo T0 con tutti gli split presenti.
+Questo albero fornisce un'accuratezza iniziale del 60.47 % sul test set e conferma quindi essere un buon modello da poter riutilizzare successivamente.
 
 ```{r alberi}
 #qua ho fatto un albero e sembra buono
@@ -365,10 +366,14 @@ mean(tree.pred == glass.test$Type) #VEDERE DOVE INSERIRE QUESTO VALORE PERCHE SO
 ```
 
 
-
-
-
 ## KNN 
+
+Un secondo possibile metodo è quello dei K-nearest neighbors (K-NN).
+Per essere applicato è necessaria innanzitutto la normalizzazione di tutti i nostri dati, in modo tale da non avere risultati falsati a causa di possibili scale diverse nei valori. In questa prima fase vengono infatti utilizzate le distanze euclidee come criterio di misura.
+Una seconda problematica è la forte multicollinerità che era stata trovata nella fase di preprocessing tra le variabili *Ca* e *RI*. A livello teorico una di queste due variabili andrebbe quindi omessa, però, a seguito di diverse analisi, è stato scelto di tenerle entrambe. Infatti provando a rimuovere una delle due o addirittura entrambi sono stati ottenuti risultati molto più scarsi rispetto al tenerle entrambe.
+
+Dopo aver verificato e risolto tutte le problematiche relative alla verifica delle assunzioni si può quindi procedere alla ricerca del k ottimale, ricercato tra 1 e 20.
+Tramite il test set si trova il k ottimale che va massimizzare l'accuracy. Viene riortato un grafico che va a mostrare per ogni k possibile la relativa media di osservazioni predette correttamente, individuando in k=8 il più efficiente. 
 
 
 
@@ -393,8 +398,6 @@ abline(h=max(knn.pred.k),col="purple")
 ```
 
 
-
-#dealing with multicollinearity (vedremo se metterla...)
 
 
 

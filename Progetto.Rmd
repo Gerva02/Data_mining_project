@@ -470,6 +470,7 @@ Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto eq
 
 Infine è stata calcolata l'accuracy per ognuno dei 3 metodi utilizzando l'iperparametro relativo appena trovato. Sono stati utilizzate tutte e 9 le variabili non trasformate, ovvero quelle del primo gruppo del preprocessing.
 Viene riportata una semplice tabella riassuntiva dei risultati.
+Il metodo migliore sembra per ora essere il KNN con distanze euclidee con un'accuracy di 0.64.
 
 ```{r cv}
 cv<-5
@@ -540,7 +541,11 @@ best.res
 
 ((((loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv))))
 
+Si riporta un grafico che rappresenta per ogni metodo l'accuratezza ottenuta con ogni possibile iperparametro.
 
+(((bisogna far capire che gli iperparametri qua non sono sovraponibili per 2 ragioni 
+più si va a destra per il knn meno il modello è variabile (è il contrario per gli alberi)
+non stanno misurando la stessa cosa)))
 
 
 ```{r grafico confronto}
@@ -553,11 +558,13 @@ res %>%
 #dal grafico temo k=1 di mahalanobis sia da escludere....
 ```
 
-bisogna far capire che gli iperparametri qua non sono sovraponibili per 2 ragioni 
-più si va a destra per il knn meno il modello è variabile (è il contrario per gli alberi)
-non stanno misurando la stessa cosa
-
 ## Confronto metodi con Transformed variables
+
+Per ultimare i confronti si procede con l'applicazione dei metodi anche nel secondo gruppo individuato nel preprocessing, ovvero quello con le 6 variabili trasformate e l'esclusione di 3 elementi chimici.
+Il procedimento è analogo a quanto visto il capitolo precedente: tramite cross validation sul training vengono trovati i 3 diversi iperparametri realtivi ai 3 metodi, per poi calcolarne l'accuracy.
+Anche in questo caso vengono riportati una tabella riassuntiva ed il grafico con tutti possibili k e le accuracy relative.
+
+I risultati ottenuti sono deludenti per il KNN con Mahalanobis (accuracy pari a 0.38), mentre sono molto buoni per quanto riguarda il KNN normale (accuracy pari a 0.72).
 
 ```{r cv transformed variables}
 cv<-5

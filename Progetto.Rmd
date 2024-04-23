@@ -646,7 +646,8 @@ Nella fase conclusiva dell'analisi si riprende quindi il test set col 20% delle 
 
 Sono quindi stati esclusi 3 elementi chimici, ovvero le variabili *Ba*, *Fe* e *K*.
 Applicando quindi il metodo si ottiene un buon risultato con un'accuracy pari al **72%**.
-
+Viene riportata anche la Confusion Matrix. Si nota come il metodo faccia fatica in alcune classi minoritarie, come la terza, probabilmente a causa di poche osservazioni e data la semplicità dell'algoritmo.
+Avendo a disposizione un maggior numero di dati si potrebbero fare analisi più approfondite su ciascuna delle classi e delle vairabili, ovvero sulle varie tipologie di vetro e la loro composizione.
 
 ```{r test knn variabili trasformate}
 k<-7
@@ -670,8 +671,8 @@ confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted value
 ```
 
 
-Gli altri metodi applicati, ovvero gli alberi decisionali e il KNN con distanze di Mahalanobis hanno portato a risultati peggiori.
+Si conclude ribadendo che gli altri metodi applicati, ovvero gli alberi decisionali e il KNN con distanze di Mahalanobis hanno portato a risultati peggiori.
 La regressione logistica multiclasse è stata invece esclusa a priori perchè dava risultati ancora peggiori. 
 LDA e QDA sono stati invece esclusi a causa del mancato rispetto delle ipotesi di normalità e di varianza delle classi.
 
-
+# Bibliografia

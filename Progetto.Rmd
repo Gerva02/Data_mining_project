@@ -37,7 +37,7 @@ library(car)
 
 In questo progetto viene analizzato un dataset contenente diverse tipologie di vetri.
 L'obiettivo è la classificazione di diversi vetri in studio, tramite l'analisi del loro indice di rifrazione e di alcuni elementi chimici presenti.
-Nel lavoro verranno utilizzate e confrontate diverse tecniche di classificazione andando a cercare la più accurata.
+Nel lavoro verranno utilizzate e confrontate diverse tecniche di classificazione con lo scopo di individuare la più accurata.
 
 
 # Introduzione
@@ -100,10 +100,10 @@ n<-nrow(glass)
 k<-ncol(glass)
 ```
 
-In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 80% casuale dei nostri dati, mentre il test il restante 20%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set.
+In questa fase di preprocessing, come primo step, è stato diviso il dataset in training e test. Il training rappresenta un 80% casuale dei nostri dati, mentre il test il restante 20%. Le analisi, sia descrittive che grafiche, svolte successivamente sono applicate solamente al dataset di training, escludendo momentaneamente il test set ed utilizzandolo unicamente per la valutazione finale. In questo modo le analisi svolte non saranno in alcun modo influenzate da questo dataset come se stessimo applicando il modello nella realtà
 
 ```{r division dataset}
-#implementiamo una funzione per train/test
+#implementiamo una funzione per suddividere in train set e test set
 dataset_division <- function(D1, perc = 0.8) {
   set.seed(42)
   id <- sample(size = round(perc* nrow(D1)) , x = nrow(D1))
@@ -118,38 +118,28 @@ glass.test <- division$test
 
 ```
 
-Innanzitutto, è rappresentata la matrice di correlazione tra tutte le nostre variabili, tutte quantitative, esclusa ovviamente la variabile target. Si nota una forte correlazione positiva tra Ca e RI. Questa correlazione potrebbe creare problemi in metodi come il KNN e verrà quindi successivamente ripresa.
+Innanzitutto, è rappresentata la matrice di correlazione tra tutte le nostre variabili, tutte quantitative, esclusa ovviamente la variabile target. Si nota una forte correlazione positiva tra Ca e RI. Questa correlazione potrebbe creare problemi in metodi come il KNN e verrà quindi successivamente approfondita.
 
 ```{r ggcorplots}
-# glass.train%>%
-#   select(-Type) %>%
-#     ggpairs(mapping = aes(color = glass.train$Type))  
 ggcorrplot(cor(glass.train%>%
  select(-Type)), lab = T , type = "lower" ) +
-  labs(title = "Plot di Correlazioni Lineari") #FAREI I GRAFICI SU "Glass" intero....(e metterei la divisione train/test dopo tutti i grafici)
+  labs(title = "Plot di Correlazioni Lineari") 
 ```
 
 Successivamente sono visualizzati i due istogrammi relativi alle frequenze, rispettivamente, relative e assolute delle 7 classi della variabile target *Type*. Si ricorda che la quarta classe non è presente, riducendo a 6 classi la nostra analisi.
 
 Si nota facilmente come le prime due classi siano molto più presenti delle altre. Infatti, solo queste due rispecchiano circa il 65% di tutte le osservazioni.
-Questa situazione si identifica nel problema di classi sbilanciate, ovvero quando nel set di dati di addestramento (training set) i dati non ugualmente distribuiti tra le classi, portando a possibili maggiori errori predittivi.
+Questa situazione si identifica nel problema di classi sbilanciate, ovvero quando nel set di dati di addestramento (training set) i dati non ugualmente distribuiti tra le classi, causando verosimilmente minor accuratezza nel modello.
 In questi contesti è solito cercare di ribilanciare le classi, tramite tecniche di oversampling (SMOTE) o undersampling, in particolare se si ritiene di una certa importanza inidviduare determinate classi meno presenti.
 Tuttavia, successivamente ad alcune ricerche, non è stato ritenuto opportuno applicare queste tecniche al dataset in analisi. Infatti, non è presente nessuna classe di tipologia di vetri più rilevante rispetto ad altre.
 
 ```{r barplot}
-#questo bar plot è riguardo freq relative
+#bar plot freq relative
 glass.train %>%
-  ggplot(aes(x= Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
+  ggplot(aes(x = Type, y = after_stat(count)/sum(after_stat(count)), fill = Type)) + 
   geom_bar() +
-  labs(title = "Frequenza Relativa delle Classi",y= "Freq Rel")
- 
-#questo bar plot è riguardo freq assolute
-glass.train %>%
-  ggplot(aes(x= Type, y = after_stat(count), fill = Type)) + 
-  geom_bar() +
-  labs(title = "Frequenza Assoluta delle Classi",y= "Freq Ass")
+  labs(title = "Frequenza Relativa delle Classi",y = "Freq Rel")
 
-#MA LI METTIAMO ENTRAMBI?
 ```
 
 Vengono di seguito riportati i boxplot di ciascuna delle variabili, senza aver effettuato nessun tipo di trasformazione. Si nota una distribuzione abbastanza sbilanciata, con la presenza di una forte asimmetria nelle variabili *Ba*, *Fe* e *K*. Le restanti variabili sembrano invece più simmetriche e senza la presenza di outlier. 
@@ -162,7 +152,7 @@ glass.train %>%
   ggplot(mapping= aes(y = valore)) +
   geom_boxplot()+
   facet_wrap(~ tipo,scales="free")+
-  labs(title = "Box Plot con Tutte le Variabili")
+  labs(title = "Box Plot per ogni variabile")
   
 ```
 
@@ -175,7 +165,6 @@ Tramite questo grafico si riescono infatti a fare 3 principali osservazioni:
 
 
 ```{r}
-#qua devo ancora capire come farlo meglio sarebbero i box plot condizionati e ad ogni misurazione ad ogni tipo il problema è la scala di gradezza è diversa per ogni casella
 glass.train %>%
   gather(key = Measure, value = valore, -Type )  %>%
   ggplot(aes(x = Type, y= valore, color = Measure)) +
@@ -193,14 +182,14 @@ glass.train %>%
 ```
 
 Dai violin plot sembrerebbe che alcuni valori possano essere negativi, che sarebbe impossibile per le nostre variabili, ma questo è dovuto solo a causa della stima delle distribuzioni.
-Di seguito è riportata comunque una verifica pratica nel nostro training set andando a cercare tutte le osservazioni con valori positivi. L'output fornisce un tibble con tutte le 171 osservazioni del training, ovvero l'80% del dataset completo, andandoci a confermare che non abbiamo valori negativi.
+Di seguito è riportata comunque una verifica pratica nel nostro training set andando a cercare tutte le osservazioni con valori positivi. L'output fornisce un tibble con tutte le 171 osservazioni del training, ovvero l'80% del dataset completo, andandoci a confermare che non siamo in presenza di valori negativi.
 
 ```{r}
 glass.train %>%
   filter(if_any("RI" : "Fe", ~ . > 0 ))
 ```
 
-Si riportano infine i grafici della stima delle distribuzioni di ogni variabile, condizionata ad ognuna delle 6 classi presenti. Questi grafici confermano i medesimi risultati e osservazioni dei violin plot visualizzati precedentemente in maniera differente.
+Si riportano infine i grafici della stima delle distribuzioni di ogni variabile, condizionata ad ognuna delle 6 classi presenti. Questi grafici confermano i medesimi risultati e osservazioni dei violin plot visualizzati precedentemente.
 
 
 ```{r}
@@ -223,7 +212,7 @@ Il dataset è stato quindi diviso in due gruppi:
 * Il primo contiene tutte le 9 variabili non trasformate
 * Il secondo ha invece le 6 variabili trasformate, con l'esclusione delle 3 sopraccitate.
 
-Di seguito vengono riportati i grafici della stima della densità non parametrica delle distribuzioni delle nuove 6 variabili trasformate, rispetto alle classi. Il risultato è buono in quanto tutte le variabili sembrano avere distribuzione più normale.
+Di seguito vengono riportati i grafici della stima della densità non parametrica delle distribuzioni delle nuove 6 variabili trasformate, rispetto alle classi. Il risultato è buono in quanto tutte le variabili sembrano avere distribuzione più simmetrica.
 
 ```{r}
 p.train <-glass.train %>% 
@@ -262,7 +251,6 @@ Sono di seguito riportate le due tabelle per ognuno dei due gruppi:
 In entrambi i casi si osserva che i p-value sono quasi tutti molto "bassi" facendo rifiutare l'ipotesi nulla di normalità. Vengono quindi confermati analiticamente i risultati ottenuti prima tramite le analisi grafiche, portando all'esclusione di LDA e QDA.
 
 ```{r shapiro test}
-#impostazione tabella pvalues
 pvalue.shapiro <- matrix(0, nrow = (dim(glass.train)[2]-1), ncol = 6)
 rownames(pvalue.shapiro) = colnames(glass.train)[-10]
 colnames(pvalue.shapiro) = levels(glass.train$Type)
@@ -272,8 +260,8 @@ colnames(pvalue.shapiro) = levels(glass.train$Type)
 for (i in colnames(glass.train)[-10]){
   for (j in levels(glass.train$Type)){
     pvalue.shapiro[i,j]<-
-      shapiro.test( jitter(glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
-    # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
+      shapiro.test( jitter(glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #jitter introduce noise gaussiano per evitare errori nel test
+    
   }
 }
 
@@ -283,7 +271,6 @@ round(pvalue.shapiro, 5)
 ```
 
 ```{r shapiro test dati trasformati}
-#qua si crea tabella pvalues
 pvalue.shapiro.2 <- matrix(0, nrow = (dim(transformed.glass.train)[2]-1), ncol = 6)
 rownames(pvalue.shapiro.2) = colnames(transformed.glass.train)[-7]
 colnames(pvalue.shapiro.2) = levels(transformed.glass.train$Type)
@@ -293,8 +280,7 @@ colnames(pvalue.shapiro.2) = levels(transformed.glass.train$Type)
 for (i in colnames(transformed.glass.train)[-7]){
   for (j in levels(glass.train$Type)){
     pvalue.shapiro.2[i,j]<-
-      shapiro.test( jitter(transformed.glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #qua si assegnano tutti i valori, bisonga stare attenti perchè alcuni di questi non sono validi perchè ho messo jitter non lo fa andare in errore quando tutti i valori sono uguali ma introduce noise gaussiano che rende normali quando non sono ugugali
-    # pull invece serve per tirare fuori dal tibble un vettore (e non un tibble)
+      shapiro.test( jitter(transformed.glass.train %>% filter(Type == j)%>%pull(i)) )$p.value #jitter introduce noise gaussiano per evitare errori nel test
   }
 }
 
@@ -305,25 +291,21 @@ L'ultimo step della fase di Preprocessing è la normalizzazione. Sono di seguito
 
 
 ```{r normalizzazione}
-#v è un vettore colonna il primo valore è il minimo il secondo il massimo e il resto solo i valori effettivi delle colonne (Fe, Ba, etc)
-
-#funzione che prende vettore, toglie il primo numero, e lo divide da secondo - primo 
-
 
 func<-function(v){
-  return((v-v[1])/(v[2]-v[1])) # non aggiorno v[1] v[2] fino alla fine e quelli saranno innutili
+  return((v-v[1])/(v[2]-v[1])) 
 }
 
-# matrix sarà la nostra tabella min e max
+# matrix sarà la tabella contenente min e max del train set
 norm_aux<-function(data,matrix){
   data_2<-rbind(matrix,data)  
-  data_norm<-apply(data_2,MARGIN = 2,func) #applichiamo func ad ogni colonna
-  return(data_norm[3:nrow(data_norm),]) # da 3 in poi perchè i primi due valori sono il minimo e il massimo utilizzati per normalizzare
+  data_norm<-apply(data_2,MARGIN = 2,func) 
+  return(data_norm[3:nrow(data_norm),])
 }
 
 # questa funzione prende sia il train che il test e normalizza il test con min e max del train
 normalize<-function(train,test){
-  matrix_min_max<-rbind(apply(train,MARGIN = 2,min),apply(train,MARGIN = 2,max)) #qua salviamo min e max -> matrice che anda in norm aux
+  matrix_min_max<-rbind(apply(train,MARGIN = 2,min),apply(train,MARGIN = 2,max)) 
   train_norm<-norm_aux(train,matrix_min_max)
   test_norm<-norm_aux(test,matrix_min_max)
   return(list(train_norm=train_norm,test_norm=test_norm))
@@ -338,18 +320,17 @@ normalize<-function(train,test){
 
 Come primo metodo è stato provato quello degli alberi decisionali. Questi infatti non hanno particolari assunzioni preliminari e possono quindi essere applicati al dataset in analisi senza nessun problema.
 Viene riportato in figura l'albero completo T0 con tutti gli split presenti.
-Si notano diversi split che sembrano poco utili per la classificazione alla fine dell'albero. Questi splittano infatti nella stessa classe e potrebbero essere in futuro potati tramite tencniche di pruning.
+Si notano diversi split che sembrano poco utili per la classificazione alla fine dell'albero. Questi risultano infatti nella stessa classe e potrebbero essere in futuro potati tramite tencniche di pruning.
 La variabile che sembra essere più importante è quella dell'elemento chimico del magnesio, in quanto primo split dell'albero (Mg<2.695).
 
-Questo albero fornisce un'accuratezza iniziale del 60.47 % sul test set e conferma quindi essere un buon modello da poter riutilizzare successivamente.
+Questo albero fornisce un'accuratezza iniziale del 60.47 % sul test set e conferma quindi essere un modello da approfondire in seguito.
 
 ```{r alberi}
-#qua ho fatto un albero e sembra buono
 set.seed(47)
 
 tree.glass <- tree(Type ~. , glass.train)
 tree.pred <- predict(tree.glass , glass.test[-10] , type = "class")
-plot(tree.glass); text(tree.glass, , pretty = 0) # albero completo # queste due linee vanno eseguite insieme
+plot(tree.glass); text(tree.glass, , pretty = 0) 
 mean(tree.pred == glass.test$Type) 
 pruned.tree.k <-prune.tree(tree.glass  ,method="misclass")$k
 
@@ -360,11 +341,11 @@ pruned.tree.k <-prune.tree(tree.glass  ,method="misclass")$k
 ## KNN 
 
 Un secondo possibile metodo è quello dei K-nearest neighbors (K-NN).
-Per essere applicato è necessaria innanzitutto la normalizzazione di tutti i nostri dati, in modo tale da non avere risultati falsati a causa di possibili scale diverse nei valori. In questa prima fase vengono infatti utilizzate le distanze euclidee come criterio di misura.
-Una seconda problematica è la forte multicollinerità che era stata trovata nella fase di preprocessing tra le variabili *Ca* e *RI*. A livello teorico una di queste due variabili andrebbe quindi omessa, però, a seguito di diverse analisi, è stato scelto di tenerle entrambe. Infatti provando a rimuovere una delle due o addirittura entrambi sono stati ottenuti risultati molto più scarsi rispetto al tenerle entrambe.
+Per essere applicato è necessaria innanzitutto la normalizzazione di tutti i nostri dati, in modo tale da non avere risultati alterati dalla presenza di variabili con diversi ordini di grandezza. In questa prima fase vengono infatti utilizzate le distanze euclidee come criterio di misura.
+Una seconda problematica è la elevata multicollinerità riscontrata nella fase di preprocessing tra le variabili *Ca* e *RI*. A livello teorico una di queste due variabili andrebbe quindi omessa, ma in seguito ad analisi approfondite è risultato più performante un modello basato sulla presenza di entrambe le variabili.
 
 Dopo aver verificato e risolto tutte le problematiche relative alla verifica delle assunzioni si può quindi procedere alla ricerca del k ottimale, ricercato tra 1 e 20.
-Tramite il test set si trova il k ottimale che va massimizzare l'accuracy. Viene riortato un grafico che va a mostrare per ogni k possibile la relativa media di osservazioni predette correttamente, individuando in k=8 il più efficiente.
+Tramite il test set si trova l'iperparametro k che va massimizzare l'accuracy. Viene riportato un grafico che va a mostrare per ogni k possibile la relativa media di osservazioni predette correttamente, individuando in k=8 l'accuratezza più elevata.
 
 ```{r knn 1}
 Kmax<-20
@@ -386,12 +367,10 @@ abline(h=max(knn.pred.k),col="purple")
 
 ## KNN Mahalanobis
 
-Un approccio alternativo al classico algoritmo del KNN è quello di utilizzare le distanze di Mahalanobis al posto delle distanze euclidee come metodo di misura della distanza. In questo caso non è neanche necessaria la normalizzazione, dato che la distanza di Mahalanobis tiene conto delle correlazioni e include una trasformazione che già pone le variabili sulla stessa scala.
-Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza.
+Un approccio alternativo al classico algoritmo del KNN è quello di utilizzare la distanza di Mahalanobis in alternativa alla più comune distanza euclidea. In questo caso non è necessaria la normalizzazione, dato che la distanza di Mahalanobis tiene conto delle correlazioni e include una trasformazione che già pone le variabili sulla stessa scala.
+Anche in questo caso si riporta lo stesso grafico di prima per mostrare tutti i k possibili e la loro relativa accuratezza.purtroppo la scelta del parametro k ricade su un valore molto elevato e determina una inevitabile influenza sulla previsione da parte delle classi più numerose, causando novetoli problemi in fase di valutazione del modello e utilizzo poi in un futuro per scopi reale. Per questo motivo in seguito si opterà per un valore massimo di k inferiore.
 
 ```{r malanobis}
-
-#si prova con mahalanobis distance
 
 mahalanobis_dist <- function(x, mean_vec, sigma_inv) {
   diff_vec <- t(t(x) - mean_vec)
@@ -425,7 +404,6 @@ knn_mahalanobis <- function(train, valid, train_lab, valid_lab, k) {
 
 ```{r malanobis scelta k.best}
 Kmax<-40
-#non si normalizza perchè fa già mahalanobis????
 set.seed(47)
 knn.pred.k<-rep(0,Kmax)
 X_train<-glass.train[,-10]
@@ -439,7 +417,6 @@ r<-rep("black",Kmax)
 r[which.max(knn.pred.k)]<-"red"
 plot(1:Kmax,knn.pred.k,type="h",ylim=c(0,1),col=r)
 abline(h=max(knn.pred.k),col="purple")
-#teniamo senza normalizzare
 ```
 
 
@@ -453,11 +430,11 @@ Nella fase precedente sono stati selezionati 3 diversi metodi:
 * KNN
 * KNN con distanze di Mahalanobis
 
-È stata effettuata anche una regressione logistica multiclasse, ma è stata esclusa a causa di scarsi risultati (circa 0,40 di accuracy).
+È stata effettuata inoltre una regressione logistica multiclasse, ma è stata esclusa a causa di scarsi risultati che in termini di accuracy si aggiravano attorno al 40%.
 
-In questa fase verrà tuttavia utilizzato un metodo diverso per trovare il modello migliore, ovvero la tecnica della **cross-validation**. Tramite questo metodo più robusto si riescono a trovare iperparametri migliori sia per gli alberi decisionali che per il KNN.
+In questa fase verrà tuttavia utilizzato un metodo diverso per trovare il modello ottimale, ovvero la tecnica della **cross-validation**. Tramite questo metodo più robusto si riescono a trovare iperparametri migliori sia per gli alberi decisionali che per il KNN.
 Verrà quindi messo da parte il test set e verrà suddiviso in 5 parti il training set in modo tale da poterci applicare la cross-validation e trovare l'iperparametro ottimale.
-Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto equo tra metodi.
+Ovviamente verranno mantenuti sempre gli stessi gruppi per avere un confronto equo tra i diversi metodi.
 
 Infine è stata calcolata l'accuracy per ognuno dei 3 metodi utilizzando l'iperparametro relativo appena trovato. Sono stati utilizzate tutte e 9 le variabili non trasformate, ovvero quelle del primo gruppo del preprocessing.
 Viene riportata una semplice tabella riassuntiva dei risultati.
@@ -486,7 +463,7 @@ group <- rep(c(1:cv), round(n.train/cv))
 random.assign <- sample( c(1:cv),size = n.train - length(group)) # ne mancheranno sempre cv o meno quindi non ci serve replace
 split<-sample( append(group, random.assign) , size=n.train) 
 
-#loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
+#loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al successivo blocco di cv
 for (j in 1:cv){
   
   
@@ -496,8 +473,6 @@ for (j in 1:cv){
   #metodo knn
   for (i in 1:knn.kmax){
     knn.pred <- knn(train=train.cv, test=test.cv, cl=labels.train[split != j], k = i)
-    #knn.pred <- knnMCN(train=train_cv, test=test_cv, TstX = NULL, K = i, ShowObs = F) 
-    #TENIAMO PRESENTE CHE FACENDO NORMALIZE IN QUESTO MODO IL     RUSLTATO CAMBIA TOTALMENTE E PASSA DA k=1 a k=4 CHE HA SENSO??? O FORSE CAMBIO DRASTICO...NORMALIZZARE COME AVEVO FATTO PRIMA       ERA SBAGLIATO E QUESTO MIGLIORAMENTO LO ATTESTA (CON E SENZA NORMALIZZAZIONE C'E UN CAMBIAMENTO BELLO STRONG). RAZIONALE CHE        USCISSE CON k=1 CHE QUINDI PROBABILMENTE ERA UNA E UNA SOLA VARIABILE DELL'UNICO PUNTO VICINO A FARE LA DIFFERENZA
     mat[i,j+2]<-mean(knn.pred == labels.train[split ==j])
   }
     
@@ -514,7 +489,7 @@ for (j in 1:cv){
   
   train.maha <- glass.train[split != j,] 
   test.maha <-glass.train[split ==j,]
-  #metodo knn maha
+  #metodo knn con mahalanobis distance
   for (h in 1:knn.mahalanobis.max){
     mat[knn.kmax+tree.size.max+h,j+2]<- knn_mahalanobis(train.maha[,-k.train], test.maha[,-k.train], train.maha$Type, test.maha$Type, k=h)
   }
@@ -531,8 +506,7 @@ best.res
 ```
 
 Si riporta un grafico che rappresenta per ogni metodo l'accuratezza ottenuta con ogni possibile iperparametro.
-È utile far notare l'interpretazione opposta del valore dell'iperparametro nel KNN e negli alberi decisionali. Nel KNN infatti più il parametro è grande e più il modello è semplice, avendo quindi un maggiore bias e una minore varianza. Al contrario, negli alberi decisionali si ha un modello più complesso con l'aumentare del parametro, con minore bias e maggiore varianza.
-
+È interessante sottolineare come tutti i metodi preferiscano la scelta di un modello in genrale più complesso che rischia di incombere in problemi di overfitting, riscontrando sì un bias inferiore ma trovando molte difficoltà nell'effetturare previsione su dati sconosciuti al modello.
 
 ```{r grafico confronto}
 res %>%
@@ -541,14 +515,13 @@ res %>%
   geom_point()+
   facet_grid(~metodo) +
   labs(title= "Variazione di Accuracy Rispetto a Iperparametri")
-#dal grafico temo k=1 di mahalanobis sia da escludere....
 ```
 
 ## Confronto metodi con Transformed variables
 
 Per ultimare i confronti si procede con l'applicazione dei metodi anche nel secondo gruppo individuato nel preprocessing, ovvero quello con le 6 variabili trasformate e l'esclusione di 3 elementi chimici.
-Il procedimento è analogo a quanto visto il capitolo precedente: tramite cross validation sul training, sempre con lo stesso split, vengono trovati i 3 diversi iperparametri realtivi ai 3 metodi, per poi calcolarne l'accuracy.
-Anche in questo caso vengono riportati una tabella riassuntiva ed il grafico con tutti possibili k e le accuracy relative.
+Il procedimento è analogo a quanto visto nel capitolo precedente: tramite cross validation sul training, sempre con lo stesso split, vengono trovati i 3 diversi iperparametri realtivi ai 3 metodi, per poi calcolarne l'accuracy.
+Anche in questo caso vengono riportati una tabella riassuntiva ed il grafico con tutti possibili iperparametri e le relative accuracy.
 
 I risultati ottenuti sono deludenti per il KNN con Mahalanobis (accuracy pari a 0.38), mentre sono molto buoni per quanto riguarda il KNN normale (accuracy pari a 0.72).
 
@@ -571,8 +544,8 @@ mat.2[(knn.kmax+tree.size.max+1):(knn.kmax+tree.size.max+knn.mahalanobis.max),2]
 
 set.seed(47)
 group <- rep(c(1:cv), round(n.train/cv))
-random.assign <- sample( c(1:cv),size = n.train - length(group)) # ne mancheranno sempre cv o meno quindi non ci serve replace
-split<-sample( append(group, random.assign) , size=n.train) #non ha senso questo metodo, capisco avere stessa proporzione ma usiamo una tecnica più flessibile se modifichiamo cv o proporzione train/test all'inizio (30% nel test set mi sembra eccessivo)
+random.assign <- sample( c(1:cv),size = n.train - length(group))
+split<-sample( append(group, random.assign) , size=n.train) 
 
 #loop più grande è quello del cv per ogni split del cv si allenano tutti i modelli con tutti gli iperparametri diversi si calcola l'errore e si passa al prossimo blocco di cv
 for (j in 1:cv){
@@ -582,13 +555,11 @@ for (j in 1:cv){
   #metodo knn
   for (i in 1:knn.kmax){
     knn.pred <- knn(train=train.cv, test=test.cv, cl=labels.train[split != j], k = i)
-    #knn.pred <- knnMCN(train=train_cv, test=test_cv, TstX = NULL, K = i, ShowObs = F) 
-    #TENIAMO PRESENTE CHE FACENDO NORMALIZE IN QUESTO MODO IL     RUSLTATO CAMBIA TOTALMENTE E PASSA DA k=1 a k=4 CHE HA SENSO??? O FORSE CAMBIO DRASTICO...NORMALIZZARE COME AVEVO FATTO PRIMA       ERA SBAGLIATO E QUESTO MIGLIORAMENTO LO ATTESTA (CON E SENZA NORMALIZZAZIONE C'E UN CAMBIAMENTO BELLO STRONG). RAZIONALE CHE        USCISSE CON k=1 CHE QUINDI PROBABILMENTE ERA UNA E UNA SOLA VARIABILE DELL'UNICO PUNTO VICINO A FARE LA DIFFERENZA
     mat.2[i,j+2]<-mean(knn.pred == labels.train[split ==j])
   }
     
   
-  train.cv.tree <- transformed.glass.train[split != j,] #ho provato con quelli normalizzati ma non cambia nulla
+  train.cv.tree <- transformed.glass.train[split != j,] 
   test.cv.tree  <-transformed.glass.train[split == j,]
   tree.glass.cv <- tree(Type ~. , train.cv.tree)
   #metodo alberi
@@ -599,7 +570,7 @@ for (j in 1:cv){
   }
   train.maha <- transformed.glass.train[split != j,] 
   test.maha <-transformed.glass.train[split ==j,]
-  #metodo knn maha
+  #metodo knn con mahalanobis distance
   for (h in 1:knn.mahalanobis.max){
     mat.2[knn.kmax+tree.size.max+h,j+2]<- knn_mahalanobis(train.maha[,-k.train], test.maha[,-k.train], train.maha$Type, test.maha$Type, k=h)
   }
@@ -612,7 +583,6 @@ best.res.2<-rbind(res.2%>%filter(metodo=="knn")%>%filter(accuracy==max(accuracy)
                   res.2%>%filter(metodo=="tree")%>%filter(accuracy==max(accuracy)),
                   res.2%>%filter(metodo=="knn.maha")%>%filter(accuracy==max(accuracy)))
 best.res.2
-
 ```
 
 
@@ -622,7 +592,7 @@ res.2 %>%
   geom_line()+ 
   geom_point()+
   facet_grid(~metodo) +
-  labs(title= "Variazione di Accuracy Rispetto a Iperparametri") #DA CAMBIARE IL TITOLO....
+  labs(title= "Variazione di Accuracy Rispetto a Iperparametri con variabili trasformate")
  
 ```
 
@@ -645,17 +615,16 @@ test.norm<-out.norm$test_norm
 labels.train<-transformed.glass.train$Type
 
 set.seed(47)
-knn.pred.transf <- knn(train=train.norm, test=test.norm, cl=labels.train, k = 3) #non funziona se ci escono 2 o più soluzioni
-#TOCCA SCEGLIERE IL SEED E USIAMO QUEL CHE CI ESCE
-mean(transformed.glass.test$Type == knn.pred.transf) #molto più alto rispetto al validation...temo che usare solo 214 record è poco...
+knn.pred.transf <- knn(train=train.norm, test=test.norm, cl=labels.train, k = 3) 
+mean(transformed.glass.test$Type == knn.pred.transf) 
 ```
 
 
 
 ```{r Confusion Matrix}
-reference<-transformed.glass.test$Type #VEDETE SE INSERIRE, PER ME CI STA
+reference<-transformed.glass.test$Type 
 pred.best<-knn.pred.transf
-confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted values","true values")) #scegliete se value o values...
+confusionMatrix(data = pred.best,reference = reference, dnn = c("predicted value","true value")) .
 ```
 
 
